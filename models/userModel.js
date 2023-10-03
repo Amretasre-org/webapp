@@ -34,13 +34,13 @@ module.exports = (sequelize, DataTypes) => {
     //     onUpdate: 'CASCADE', // If you update a user's ID, also update their assignments
     //   });
 
-    // User.associate = (models) => {
-    //     User.hasMany(models.Assignment, {
-    //         foreignKey: 'userId', // The foreign key in the Assignments table
-    //         as: 'assignments', // Alias for the association
-    //         sourceKey: 'id'
-    //     });
-    // };
+    User.associate = (models) => {
+        User.hasMany(models.Assignment, {
+            foreignKey: 'userId', // The foreign key in the Assignments table
+            as: 'assignments', // Alias for the association
+            sourceKey: 'id'
+        });
+    };
 
     return User;
 

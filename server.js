@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const db = require("./models");
 const fs = require("fs");
+// import bcryptingPassword from "../utils/bcrypting";
+const { bcryptingPassword } = require("./utils/bcrypting");
 
 const userRoutes = require("./routes/userRoutes");
 const healthRoutes = require("./routes/healthRoutes");
@@ -37,22 +39,24 @@ const addUser = async () => {
   const fileContent = fs.readFileSync(path, 'utf8');
   const lines = fileContent.split("\n");
   const datLines = lines.slice(1).filter(line => line.trim() !== '');
+
   datLines.forEach((line) => {
     const columns = line.split(",");
-    console.log(columns[3]);
-    
-    let user = {
+    const hashedPassword = bcryptingPassword(columns[3]);
+    const user = {
       id: Buffer.from(`${columns[2]}:${columns[3]}`, 'utf8').toString('base64'),
       firstName: columns[0],
       lastName: columns[1],
       email: columns[2],
-      password: Buffer.from(`${columns[3]}`, 'utf8').toString('base64')
-    }
+      password: hashedPassword, // Assign the hashed password here
+    };
     usersArr.push(user);
   });
 
   try {
-    await db.users.bulkCreate(usersArr);
+    if (usersArr.length != 0) {
+      await db.users.bulkCreate(usersArr);
+    }
   } catch (e) {
     console.log(e);
   }

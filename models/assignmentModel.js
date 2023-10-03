@@ -30,13 +30,13 @@ module.exports = (sequelize, DataTypes) => {
         }
     });
 
-    // Assignment.associate = (models) => {
-    //     Assignment.belongsTo(models.User, {
-    //         foreignKey: 'userId', // The foreign key in the Assignments table
-    //         as: 'user', // Alias for the association
-    //         targetKey: 'id'
-    //     });
-    // };
+    Assignment.associate = (models) => {
+        Assignment.belongsTo(models.User, {
+            foreignKey: 'userId', // The foreign key in the Assignments table
+            as: 'user', // Alias for the association
+            targetKey: 'id'
+        });
+    };
 
     // Assignment.belongsTo(User, {
     //     foreignKey: 'userId',
