@@ -2,6 +2,11 @@ name: Workflow Test
 
 on: [push]
 
+env:
+  HOST: "localhost"
+  MYSQLUSER: "root"
+  PASSWORD: ${{ secrets.SQL_PASSWORD }}
+
 jobs:
   push-workflow:
     runs-on: ubuntu-latest
@@ -37,13 +42,9 @@ jobs:
       run: echo "Starting test"
 
     - name: Run tests
-      env:
-          HOST: ${{ secrets.HOST }}
-          MYSQLUSER: ${{ secrets.MYSQLUSER }}
-          PASSWORD: ${{ secrets.SQL_PASSWORD }}
       run: |
-        echo ${{ secrets.HOST }}
-        echo ${{ secrets.MYSQLUSER }}
+        echo ${env.HOST}
+        echo ${env.MYSQLUSER}
         npm test
 
     - name: Test files execution completion
