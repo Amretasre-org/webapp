@@ -3,7 +3,7 @@ name: Workflow Test
 on: [push]
 
 env:
-  HOST: "localhost:3306"
+  HOST: "localhost"
   MYSQLUSER: "root"
   PASSWORD: ""
 
