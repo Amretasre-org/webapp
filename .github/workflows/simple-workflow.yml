@@ -43,7 +43,7 @@ jobs:
         sudo apt-get update
         sudo systemctl start mysql
         sudo systemctl status mysql
-        mysql -u root -p"${{secrets.SQL_PASSWORD}}" -e "CREATE DATABASE Assignments_Demo_DB;"
+        mysql -u root -p"${env.PASSWORD}" -e "CREATE DATABASE Assignments_Demo_DB;"
 
     - name: Starting dependency installation
       run: echo "Installing Dependencies"
