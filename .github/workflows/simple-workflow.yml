@@ -5,7 +5,7 @@ on: [push]
 env:
   HOST: "localhost:3306"
   MYSQLUSER: "root"
-  PASSWORD: "amre1999"
+  PASSWORD: ""
 
 jobs:
   push-action:
@@ -68,7 +68,7 @@ jobs:
 
     - name: Run MySQL Ping
       run: |
-          mysqladmin ping -h ${{ env.HOST }} -u ${{ env.MYSQLUSER }} -p${{ env.PASSWORD }}
+          mysqladmin ping -h ${{ env.HOST }} -u ${{ env.MYSQLUSER }}
 
     - name: run tests
       run: npm test
