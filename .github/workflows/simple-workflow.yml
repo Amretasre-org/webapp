@@ -36,7 +36,7 @@ jobs:
       run: |
         echo "HOST=${HOST}"
         echo "MYSQLUSER=${MYSQLUSER}"
-        echo "PASSWORD=${{ secrets.MY_GENERATED_PASSWORD }}
+        echo "PASSWORD=${PASSWORD}
 
     - name: Install MySQL and Set Password
       run: |
