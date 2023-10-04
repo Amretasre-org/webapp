@@ -4,8 +4,8 @@ module.exports = {
     HOST: `${process.env.HOST}`,
     USER: `${process.env.MYSQLUSER}`,
     PASSWORD: `${process.env.PASSWORD}`,
-    DB: `${process.env.DB}`,
-    dialect: `${process.env.DIALECT}`,
+    DB: "Assignments_Demo_DB",
+    dialect: "mysql",
     pool: {
       max: 5,
       min: 0,
