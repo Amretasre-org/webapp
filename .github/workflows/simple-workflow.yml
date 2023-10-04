@@ -30,7 +30,7 @@ jobs:
       run: echo "Node JS installation done"
 
     - name: Starting installation for mysql-server
-      run: echo "Node JS installation done"
+      run: echo "mysql-server installation done"
 
     - name: Show environment variables
       run: |
@@ -38,11 +38,12 @@ jobs:
         echo "MYSQLUSER=${MYSQLUSER}"
         echo "PASSWORD=${PASSWORD}"
         
-    - name: Install MySQL and Set Password
+    - name: configuremysql
       run: |
-        echo "Installing MySQL server"
         sudo apt-get update
-        sudo apt-get -y install mysql-server 
+        sudo systemctl start mysql
+        sudo systemctl status mysql
+        mysql -u root -p"${{secrets.SQL_PASSWORD}}" -e "CREATE DATABASE Assignments_Demo_DB;"
 
     - name: Starting dependency installation
       run: echo "Installing Dependencies"
