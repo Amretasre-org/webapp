@@ -51,6 +51,7 @@ router.get("/healthz", async (req, res) => {
 
         }
     } catch (err) {
+        console.error(err);
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control', 'no-cache');
         res.status(503).json({

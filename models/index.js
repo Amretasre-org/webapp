@@ -25,14 +25,14 @@ db.sequelize = sequelize; // the instance of Sequelize
 db.users = require("./userModel")(sequelize, DataTypes);
 db.assignments = require("./assignmentModel")(sequelize, DataTypes);
 
-sequelize.authenticate()
+db.sequelize.authenticate()
 .then(() => {
   console.log("Connected to DB");
-  db.sequelize.sync({force: true});
+  db.sequelize.sync({force: false});
 })
 .then(async () => {
   console.log("Adding users to DB");
-  await userController.addUsers(db);
+  await userController.addUser(db);
 })
 .catch((err) => {
   console.log("Error", err);
