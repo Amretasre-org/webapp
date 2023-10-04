@@ -16,7 +16,7 @@ const authorization = async (req, res, next) => {
                 req.user = user;
                 next();
             } else {
-                res.status(400).json({
+                res.status(401).json({
                     status: "Unauthorized",
                     message: "Login credentials does not match"
                 });

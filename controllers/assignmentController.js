@@ -14,15 +14,15 @@ const createAssignment = async (req, res, db) => {
             status: "Bad Request",
             message: "Assignment name required"
         })
-    } else if (!req.body.points && req.body.points <= 10) {
+    } else if (!req.body.points && req.body.points <= 10 && req.body.points >= 1) {
         res.status(400).json({
             status: "Bad Request",
-            message: "Points for assignment is required"
+            message: "Points for assignment is required and must be between 1 and 10"
         })
-    } else if (!req.body.num_of_attempts && req.body.num_of_attempts <= 3) {
+    } else if (!req.body.num_of_attempts && req.body.num_of_attempts <= 3 && req.body.num_of_attempts >= 1) {
         res.status(400).json({
             status: "Bad Request",
-            message: "Number of attempts for assignment is required"
+            message: "Number of attempts for assignment is required and should be less than 3"
         })
     } else if (!req.body.deadline) {
         res.status(400).json({
@@ -117,15 +117,15 @@ const updateAssignment = async (req, res, db) => {
             status: "Bad Request",
             message: "Assignment name required"
         })
-    } else if (!req.body.points && req.body.points <= 10) {
+    } else if (!req.body.points && req.body.points <= 10 && req.body.points >= 1) {
         return res.status(400).json({
             status: "Bad Request",
-            message: "Points for assignment is required"
+            message: "Points for assignment is required and must be between 1 and 10"
         })
-    } else if (!req.body.num_of_attempts && req.body.num_of_attempts <= 3) {
+    } else if (!req.body.num_of_attempts && req.body.num_of_attempts <= 3 && req.body.num_of_attempts  >= 1) {
         return res.status(400).json({
             status: "Bad Request",
-            message: "Number of attempts for assignment is required"
+            message: "Number of attempts for assignment is required and must be between 1 and 3"
         })
     } else if (!req.body.deadline) {
         return res.status(400).json({
@@ -165,24 +165,33 @@ const updateAssignment = async (req, res, db) => {
 }
 
 const deleteAssignment = async (req, res, db) => {
-    await db.assignments.destroy({
-        where: {
-            id: req.params.id
+    try {
+        const result = await db.assignments.destroy({
+            where: {
+                id: req.params.id
+            }
+        });
+
+        if (result === 0) {
+            res.status(404).json({
+                status: "Not Found",
+                message: "Assignment not found"
+            });
+        } else {
+            res.status(204).json({
+                status: "No content",
+                message: "Assignment deleted successfully"
+            }) 
         }
-    })
-        .then(() => {
-            res.status(200).json({
-                status: "Ok",
-                message: "Deleted assignment successfully"
-            })
-        })
-        .catch((error) => {
-            res.status(500).json({
-                status: "Error",
-                error
-            })
-        })
+    } catch (error) {
+        console.error('Error deleting assignment:', error);
+        res.status(500).json({
+            status: "Error",
+            error
+        });
+    }
 }
+
 
 module.exports = {
     createAssignment,
