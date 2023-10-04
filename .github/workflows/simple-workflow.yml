@@ -53,7 +53,7 @@ jobs:
 
     - name: Run MySQL Ping
       run: |
-          mysqladmin ping -h ${HOST} -u ${MYSQLUSER} -p ${{ secrets.SQL_PASSWORD }}
+          mysqladmin ping -h ${{ env.HOST }} -u ${{ env.MYSQLUSER }} -p ${{ secrets.SQL_PASSWORD }}
 
     - name: run tests
       run: npm test
