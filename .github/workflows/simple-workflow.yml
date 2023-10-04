@@ -36,23 +36,19 @@ jobs:
       run: |
         echo "HOST=${HOST}"
         echo "MYSQLUSER=${MYSQLUSER}"
-        echo "PASSWORD=${{ secrets.MY_GENERATED_PASSWORD }}"
+        echo "PASSWORD=${{ secrets.MY_GENERATED_PASSWORD }}
 
     - name: Install MySQL and Set Password
       run: |
         echo "Installing MySQL server"
         sudo apt-get update
-        sudo apt-get -y install mysql-server
-        sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${{ secrets.SQL_PASSWORD }}';"
-        sudo mysql -e "FLUSH PRIVILEGES;" 
+        sudo apt-get -y install mysql-server 
 
-
-    - name: Wait for MySQL to start
+    - name: Set MySQL Password
       run: |
-          until mysqladmin ping -h ${{ env.HOST }} -u ${{ env.MYSQLUSER }} -p${{ secrets.SQL_PASSWORD }}; do
-            echo "Waiting for MySQL to start..."
-            sleep 5
-          done
+        echo "Setting MySQL root password"
+        sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${{ secrets.SQL_PASSWORD }}';"
+        sudo mysql -e "FLUSH PRIVILEGES;"
 
     - name: Starting dependency installation
       run: echo "Installing Dependencies"
