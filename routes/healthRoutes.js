@@ -3,9 +3,6 @@ const router = express.Router();
 const db = require("../models/index");
 
 function isRequestHeader(req, res) {
-    console.log("request has come to health")
-
-    console.log(db);
     if (req.headers['cache-control'] != "no-cache") {
         console.warn("cache contol header is missing");
         res.status(400).json({
@@ -42,7 +39,6 @@ function checkGetCall(method = "Post", res) {
 
 
 router.get("/healthz", async (req, res) => {
-    console.log("GET /healthz");
     try {
         if (isRequestHeader(req, res)) {
             await db.sequelize.authenticate();
@@ -68,5 +64,4 @@ router.put("/healthz", (req, res) => checkGetCall("put", res));
 router.delete("/healthz", (req, res) => checkGetCall("delete", res));
 router.patch("/healthz", (req, res) => checkGetCall("patch", res));
 
-// app.use("/health", router);
 module.exports = router;

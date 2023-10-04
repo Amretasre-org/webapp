@@ -11,15 +11,7 @@ const authorization = async (req, res, next) => {
             const credentials = base64.decode(authHeader.split(' ')[1]);
             const [email, password] = credentials.split(':');
             const user = await Users.findOne({ where: { email } });
-            // if (user && Buffer.from(`${password}`, 'utf8').toString('base64') == user.password) {
-            //     req.user = user;
-            //     next();
-            // } else {
-            //     res.status(400).json({
-            //         status: "Unauthorized",
-            //         message: "Login credentials does not match"
-            //     });
-            // }
+            
             if (user && await bcrypt.compare(password, user.password)) {
                 req.user = user;
                 next();

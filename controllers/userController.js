@@ -1,103 +1,37 @@
-const jwt = require("jsonwebtoken");
 require('dotenv').config();
+const fs = require("fs");
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const { bcryptingPassword } = require("../utils/bcrypting");
 
-const getUsers = async (req, res, db) => {
-    await db.users.findAll()
-        .then((data) => {
-            res.send(data);
-        })
-        .catch((err) => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while retrieving tutorials.",
-            });
-        });
-};
-
-const loginUser = async (req, res, db) => {
-    console.warn("Login");
+const addUser = async (db) => {
+    let path = __basedir + "/opt/users.csv";
+    let usersArr = [];
+    const fileContent = fs.readFileSync(path, 'utf8');
+    const lines = fileContent.split("\n");
+    const datLines = lines.slice(1).filter(line => line.trim() !== '');
+  
+    datLines.forEach((line) => {
+      const columns = line.split(",");
+      const hashedPassword = bcryptingPassword(columns[3]);
+      const user = {
+        id: Buffer.from(`${columns[2]}:${columns[3]}`, 'utf8').toString('base64'),
+        firstName: columns[0],
+        lastName: columns[1],
+        email: columns[2],
+        password: hashedPassword, // Assign the hashed password here
+      };
+      usersArr.push(user);
+    });
+  
     try {
-        const email = req.params.email;
-        const { password } = req.body;
-
-        const user = await db.users.findOne({ where: { email } });
-
-        console.log(user);
-
-        if (!user) {
-            return res.status(404).json({
-                status: "Not Found",
-                error: "User not found"
-            });
-        }
-
-        const encodedPassword = Buffer.from(password).toString("base64");
-
-        if (user.password !== encodedPassword) {
-            return res.status(401).json({
-                status: "Unauthorized",
-                error: "Invalid credentials"
-            });
-        }
-
-        const token = jwt.sign({ userId: user.id }, JWT_SECRET_KEY, {
-            expiresIn: "600s",
-        });
-
-        res.status(200).json({
-            status: "OK",
-            token
-        });
-    } catch (error) {
-        res.status(500).json({ 
-            status: "Login failed",
-            error 
-        });
+      if (usersArr.length != 0) {
+        await db.users.bulkCreate(usersArr);
+      }
+    } catch (e) {
+      console.log(e);
     }
-};
-
-const loginUserBase64 = async (req, res, db) => {
-    try {
-        const email = req.params.email;
-        const { password } = req.body;
-
-        const user = await db.users.findOne({ where: { email } });
-
-        console.log(user);
-
-        if (!user) {
-            return res.status(404).json({
-                status: "Not Found",
-                error: "User not found"
-            });
-        }
-
-        const encodedPassword = Buffer.from(password).toString("base64");
-
-        if (user.password !== encodedPassword) {
-            return res.status(401).json({
-                status: "Unauthorized",
-                error: "Invalid credentials"
-            });
-        }
-
-        const token = Buffer.from(password).toString("base64");
-
-        res.status(200).json({
-            status: "OK",
-            token
-        });
-    } catch (error) {
-        res.status(500).json({ 
-            status: "Login failed",
-            error 
-        });
-    }
-}
+  }
 
 module.exports = {
-    getUsers,
-    loginUser
+    addUser
 };

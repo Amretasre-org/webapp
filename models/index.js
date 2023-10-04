@@ -26,7 +26,7 @@ sequelize.authenticate()
 const db = {};
 
 db.Sequelize = Sequelize; // constructor
-db.sequelize = sequelize; // the instace of Sequelize
+db.sequelize = sequelize; // the instance of Sequelize
 
 db.users = require("./userModel")(sequelize, DataTypes);
 db.assignments = require("./assignmentModel")(sequelize, DataTypes);
