@@ -8,7 +8,7 @@ env:
   PASSWORD: ${{ secrets.SQL_PASSWORD }}
 
 jobs:
-  push-workflow:
+  push-action:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,11 +41,13 @@ jobs:
     - name: Running test files
       run: echo "Starting test"
 
-    - name: Run tests
+    - name: Show environment variables
       run: |
-        echo ${env.HOST}
-        echo ${env.MYSQLUSER}
-        npm test
+        echo "HOST=${HOST}"
+        echo "MYSQLUSER=${MYSQLUSER}"
+
+    - name: run tests
+      run: npm test
 
     - name: Test files execution completion
       run: echo "Finished running test files"
