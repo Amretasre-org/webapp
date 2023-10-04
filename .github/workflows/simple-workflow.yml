@@ -26,6 +26,13 @@ jobs:
       with:
         node-version: 14
 
+    - name: Install MySQL
+      run: |
+          echo "Installing MySQL server"
+          sudo apt-get update
+          sudo apt-get install -y mysql-server
+          sudo service mysql start
+
     - name: Finishing Node JS set up message
       run: echo "Node JS installation done"
 
