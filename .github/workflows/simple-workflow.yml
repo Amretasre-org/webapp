@@ -44,12 +44,6 @@ jobs:
         sudo apt-get update
         sudo apt-get -y install mysql-server 
 
-    - name: Set MySQL Password
-      run: |
-        echo "Setting MySQL root password"
-        sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${{ secrets.SQL_PASSWORD }}';"
-        sudo mysql -e "FLUSH PRIVILEGES;"
-
     - name: Starting dependency installation
       run: echo "Installing Dependencies"
 
