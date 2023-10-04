@@ -18,7 +18,7 @@ jobs:
     - name: Hello Message
       run: echo "Hello, GitHub Actions!"
 
-    - name: Statring Node JS message
+    - name: Starting Node JS message
       run: echo "Setting up Node JS"
 
     - name: Set up Node.js
@@ -32,18 +32,19 @@ jobs:
     - name: Starting installation for mysql-server
       run: echo "Node JS installation done"
 
+    - name: Show environment variables
+      run: |
+        echo "HOST=${HOST}"
+        echo "MYSQLUSER=${MYSQLUSER}"
+        echo "PASSWORD=${{ secrets.MY_GENERATED_PASSWORD }}"
+
     - name: Install MySQL
       run: |
           echo "Installing MySQL server"
           sudo apt-get update
-          sudo apt-get install -y mysql-server
-          
-    - name: Start MySQL Service
-      run: |
-          sudo service mysql start
-          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY 'your_password';"
-      env:
-          MYSQL_ROOT_PASSWORD: ${env.PASSWORD}
+          sudo apt-get -y install mysql-server
+          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.SQL_PASSWORD }}';"
+
 
     - name: Wait for MySQL to start
       run: |
@@ -63,16 +64,6 @@ jobs:
 
     - name: Running test files
       run: echo "Starting test"
-
-    - name: Show environment variables
-      run: |
-        echo "HOST=${HOST}"
-        echo "MYSQLUSER=${MYSQLUSER}"
-        echo "PASSWORD=${{ secrets.MY_GENERATED_PASSWORD }}"
-
-    - name: Run MySQL Ping
-      run: |
-          mysqladmin ping -h ${{ env.HOST }} -u ${{ env.MYSQLUSER }} -p${{ env.PASSWORD }}
 
     - name: run tests
       run: npm test
