@@ -37,6 +37,12 @@ jobs:
       run: echo "Starting test"
 
     - name: Run tests
+      env:
+          HOST: ${{ secrets.HOST }}
+          MYSQLUSER: ${{ secrets.MYSQLUSER }}
+          PASSWORD: ${{ secrets.SQL_PASSWORD }}
+          DBNAME: ${{ secrets.DB }}
+          DIALECT: ${{ secrets.DIALECT }}
       run: npm test
 
     - name: Test files execution completion
