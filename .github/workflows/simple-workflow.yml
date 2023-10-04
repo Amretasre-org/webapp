@@ -46,6 +46,15 @@ jobs:
         echo "HOST=${HOST}"
         echo "MYSQLUSER=${MYSQLUSER}"
 
+    - name: Install MySQL client
+      run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+
+    - name: Run MySQL Ping
+      run: |
+          mysqladmin ping -h ${HOST} -u ${MYSQLUSER} -p ${{ secrets.SQL_PASSWORD }}
+
     - name: run tests
       run: npm test
 
