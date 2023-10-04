@@ -2,6 +2,8 @@ const dbConfig = require("../config/config.js");
 
 const { Sequelize, DataTypes }  = require("sequelize");
 
+const userController = require("../controllers/userController");
+
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
@@ -15,14 +17,6 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   }
 });
 
-sequelize.authenticate()
-.then(() => {
-  console.log("Connected to DB");
-})
-.catch((err) => {
-  console.log("Error", err);
-})
-
 const db = {};
 
 db.Sequelize = Sequelize; // constructor
@@ -30,5 +24,18 @@ db.sequelize = sequelize; // the instance of Sequelize
 
 db.users = require("./userModel")(sequelize, DataTypes);
 db.assignments = require("./assignmentModel")(sequelize, DataTypes);
+
+sequelize.authenticate()
+.then(() => {
+  console.log("Connected to DB");
+  db.sequelize.sync({force: true});
+})
+.then(async () => {
+  console.log("Adding users to DB");
+  await userController.addUsers(db);
+})
+.catch((err) => {
+  console.log("Error", err);
+})
 
 module.exports = db;
