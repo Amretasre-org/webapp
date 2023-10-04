@@ -33,6 +33,18 @@ jobs:
           sudo apt-get install -y mysql-server
           sudo service mysql start
 
+    - name: Wait for MySQL to start
+      run: |
+          until mysqladmin ping -h ${{ env.HOST }} -u ${{ env.MYSQLUSER }} -p${{ secrets.SQL_PASSWORD }}; do
+            echo "Waiting for MySQL to start..."
+            sleep 5
+          done
+
+    - name: Install MySQL client
+      run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+
     - name: Finishing Node JS set up message
       run: echo "Node JS installation done"
 
@@ -52,11 +64,6 @@ jobs:
       run: |
         echo "HOST=${HOST}"
         echo "MYSQLUSER=${MYSQLUSER}"
-
-    - name: Install MySQL client
-      run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
 
     - name: Run MySQL Ping
       run: |
