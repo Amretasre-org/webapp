@@ -41,7 +41,10 @@ jobs:
           HOST: ${{ secrets.HOST }}
           MYSQLUSER: ${{ secrets.MYSQLUSER }}
           PASSWORD: ${{ secrets.SQL_PASSWORD }}
-      run: npm test
+      run: |
+        echo ${{ secrets.HOST }}
+        echo ${{ secrets.MYSQLUSER }}
+        npm test
 
     - name: Test files execution completion
       run: echo "Finished running test files"
