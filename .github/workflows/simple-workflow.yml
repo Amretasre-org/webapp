@@ -38,17 +38,18 @@ jobs:
         echo "MYSQLUSER=${MYSQLUSER}"
         echo "PASSWORD=${{ secrets.MY_GENERATED_PASSWORD }}"
 
-    - name: Install MySQL
+    - name: Install MySQL and Set Password
       run: |
-          echo "Installing MySQL server"
-          sudo apt-get update
-          sudo apt-get -y install mysql-server
-          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.SQL_PASSWORD }}';"
+        echo "Installing MySQL server"
+        sudo apt-get update
+        sudo apt-get -y install mysql-server
+        sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${{ secrets.SQL_PASSWORD }}';"
+        sudo mysql -e "FLUSH PRIVILEGES;" 
 
 
     - name: Wait for MySQL to start
       run: |
-          until mysqladmin ping -h ${{ env.HOST }} -u ${{ env.MYSQLUSER }} -p${{ secrets.MY_GENERATED_PASSWORD }}; do
+          until mysqladmin ping -h ${{ env.HOST }} -u ${{ env.MYSQLUSER }} -p${{ secrets.SQL_PASSWORD }}; do
             echo "Waiting for MySQL to start..."
             sleep 5
           done
