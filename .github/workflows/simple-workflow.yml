@@ -36,8 +36,8 @@ jobs:
       run: |
         echo "HOST=${HOST}"
         echo "MYSQLUSER=${MYSQLUSER}"
-        echo "PASSWORD=${PASSWORD}
-
+        echo "PASSWORD=${PASSWORD}"
+        
     - name: Install MySQL and Set Password
       run: |
         echo "Installing MySQL server"
