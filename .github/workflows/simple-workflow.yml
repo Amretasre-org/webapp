@@ -3,7 +3,7 @@ name: My Simple Workflow
 on: [push]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -12,3 +12,11 @@ jobs:
 
     - name: Print a message
       run: echo "Hello, GitHub Actions!"
+
+    - name: Print a message
+      run: echo "Setting up Node JS"
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
