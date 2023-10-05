@@ -60,5 +60,5 @@ jobs:
     - name: run tests
       run: npm test
 
-    - name: Test files execution completion
-      run: echo "Finished running test files"
+    - name: Test files execution complete
+      run: echo "Finished running test files successfully"
