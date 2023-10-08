@@ -1,4 +1,4 @@
-name: Workflow Test
+name: PR Workflow
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ env:
   PASSWORD: "root"
 
 jobs:
-  push-action:
+  PR-action:
     runs-on: ubuntu-latest
 
     steps:
