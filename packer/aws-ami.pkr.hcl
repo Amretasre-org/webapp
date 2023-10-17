@@ -66,6 +66,6 @@ build {
       "DEBIAN_FRONTEND=noninteractive",
       "CHECKPOINT_DISABLE=1"
     ]
-    script = "../debian-initial-setup.sh"
+    script = "./debian-initial-setup.sh"
   }
 }
