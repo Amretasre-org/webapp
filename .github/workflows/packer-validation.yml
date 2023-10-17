@@ -11,10 +11,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Packer
-        uses: hashicorp/setup-packer@latest
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
         with:
-          version: 1.9.4  # Replace with your desired Packer version
+          version: 1.9.4 
 
       - name: Clear Packer Plugin Cache
         run: packer plugin clear
@@ -25,7 +26,7 @@ jobs:
           env | sort  
 
       - name: Packer Init
-        run: packer init
+        run: packer init packer/aws-ami.pkr.hcl
 
       - name: Starting Packer Formatting Check
         run: echo "Packer Formatting check starts"
