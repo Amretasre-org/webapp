@@ -1,0 +1,48 @@
+name: Check Packer File Formatting and Validation
+
+on:
+  push: {}
+
+jobs:
+  packer-format-and-validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Starting Packer Formatting Check
+        run: echo "Packer Formatting check starts"
+
+      - name: Check Packer File Formatting
+        run: |
+          # Run 'packer fmt' and capture the output
+          fmt_output=$(packer fmt -check .)
+          
+          # Check if there is any output from 'packer fmt'
+          if [ -n "$fmt_output" ]; then
+            echo "Packer file is not properly formatted. Please run 'packer fmt' to format it."
+            echo "Formatting issues found:"
+            echo "$fmt_output"
+            exit 1  # Fail the workflow
+          else
+            echo "Packer file is properly formatted."
+          fi
+
+      - name: Starting Packer Validation Check
+        run: echo "Packer Validation starts"
+
+      - name: Validate Packer Configuration
+        run: |
+          # Run 'packer validate' and capture the output
+          validate_output=$(packer validate .)
+          
+          # Check if there is any output from 'packer validate'
+          if [ -n "$validate_output" ]; then
+            echo "Packer file contains configuration errors. Please fix the issues."
+            echo "Validation errors found:"
+            echo "$validate_output"
+            exit 1  # Fail the workflow
+          else
+            echo "Packer configuration is valid."
+          fi
