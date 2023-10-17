@@ -35,7 +35,7 @@ jobs:
       - name: Validate Packer Configuration
         run: |
           # Run 'packer validate' and capture the output
-          validate_output=$(packer validate .)
+          validate_output=$(packer validate packer/aws-ami.pkr.hcl)
           
           # Check if there is any output from 'packer validate'
           if [ -n "$validate_output" ]; then
