@@ -14,14 +14,6 @@ jobs:
       - name: Starting Packer Formatting Check
         run: echo "Packer Formatting check starts"
 
-      - name: Configure AWS CLI
-        env:
-          AWS_DEFAULT_REGION: us-east-1
-        run: |
-          echo "[default]" > ~/.aws/config
-          echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/config
-          echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/config
-
       - name: Check Packer File Formatting
         run: |
           # Run 'packer fmt' and capture the output
