@@ -1,0 +1,53 @@
+name: Check Packer File Formatting and Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  packer-format-and-validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
+        with:
+          version: 1.9.4 
+
+      - name: Debugging Information
+        run: |
+          packer version
+          env | sort  
+
+      - name: Packer Init
+        run: packer init packer/aws-ami.pkr.hcl
+
+      - name: Starting Packer Formatting Check
+        run: echo "Packer Formatting check starts"
+
+      - name: Check Packer File Formatting
+        run: |
+          # Run 'packer fmt' and capture the output
+          fmt_output=$(packer fmt -check .)
+
+          # Check if there is any output from 'packer fmt'
+          if [ -n "$fmt_output" ]; then
+            echo "Packer file is not properly formatted. Please run 'packer fmt' to format it."
+            echo "Formatting issues found:"
+            echo "$fmt_output"
+            exit 1  # Fail the workflow
+          else
+            echo "Packer file is properly formatted."
+          fi
+
+      - name: Starting Packer Validation Check
+        run: echo "Packer Validation starts"
+
+      - name: Validate Packer Configuration
+        run: ./validate-packer.sh
+
