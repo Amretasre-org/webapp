@@ -27,9 +27,19 @@ variable "subnetId" {
   default = "subnet-048db4a1f0b8d276c"
 }
 
+# variable "aws_access_key" {
+#   type = string 
+#   description = "AWS Access Key ID"
+#   default = ""
+# }
+
+# variable "aws_secret_key" {
+#   type = string 
+#   description = "AWS Secret Access Key"
+# }
+
 
 source "amazon-ebs" "csye6225_ami" {
-  profile = "ami-creation"
   ami_name      = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   instance_type = "t2.micro"
   region        = "${var.region}"
@@ -47,6 +57,9 @@ source "amazon-ebs" "csye6225_ami" {
   source_ami = "${var.source-ami}"
   ssh_username = "${var.username}"
   subnet_id = "${var.subnetId}"
+
+  # access_key = "${var.aws_access_key}"  
+  # secret_key = "${var.aws_secret_key}"
 
   launch_block_device_mappings {
     delete_on_termination = true # to terminate all the resouces(snapshots) when the VM is terminated
