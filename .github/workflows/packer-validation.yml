@@ -1,7 +1,9 @@
 name: Check Packer File Formatting and Validation
 
 on:
-  push: {}
+  pull_request:
+    branches:
+      - main
 
 jobs:
   packer-format-and-validate:
