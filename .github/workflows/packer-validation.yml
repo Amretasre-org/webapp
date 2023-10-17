@@ -33,14 +33,5 @@ jobs:
         run: echo "Packer Validation starts"
 
       - name: Validate Packer Configuration
-        run: |
-          validate_output=$(packer validate packer/ 2>&1)  # Redirect stderr to stdout
-          if [ $? -ne 0 ]; then
-            echo "Packer file contains configuration errors. Please fix the issues."
-            echo "Validation errors found:"
-            echo "$validate_output"
-            exit 1  # Fail the workflow
-          else
-            echo "Packer configuration is valid."
-          fi
-        shell: /usr/bin/bash -e {0}
+        run: ./validate-packer.sh
+
