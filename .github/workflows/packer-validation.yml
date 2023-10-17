@@ -11,6 +11,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Packer
+        uses: hashicorp/setup-packer@v2
+        with:
+          version: 1.9.4  # Replace with your desired Packer version
+
+      - name: Clear Packer Plugin Cache
+        run: packer plugin clear
+
+      - name: Debugging Information
+        run: |
+          packer version
+          env | sort  
+
+      - name: Packer Init
+        run: packer init
+
       - name: Starting Packer Formatting Check
         run: echo "Packer Formatting check starts"
 
