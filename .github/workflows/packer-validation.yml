@@ -18,7 +18,7 @@ jobs:
         run: |
           # Run 'packer fmt' and capture the output
           fmt_output=$(packer fmt -check .)
-          
+
           # Check if there is any output from 'packer fmt'
           if [ -n "$fmt_output" ]; then
             echo "Packer file is not properly formatted. Please run 'packer fmt' to format it."
@@ -34,11 +34,8 @@ jobs:
 
       - name: Validate Packer Configuration
         run: |
-          # Run 'packer validate' and capture the output
-          validate_output=$(packer validate packer/aws-ami.pkr.hcl)
-          
-          # Check if there is any output from 'packer validate'
-          if [ -n "$validate_output" ]; then
+          validate_output=$(packer validate packer/aws-ami.pkr.hcl 2>&1)  # Redirect stderr to stdout
+          if [ $? -ne 0 ]; then
             echo "Packer file contains configuration errors. Please fix the issues."
             echo "Validation errors found:"
             echo "$validate_output"
@@ -46,3 +43,4 @@ jobs:
           else
             echo "Packer configuration is valid."
           fi
+        shell: /usr/bin/bash -e {0}
