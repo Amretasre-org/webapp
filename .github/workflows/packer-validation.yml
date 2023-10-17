@@ -17,9 +17,6 @@ jobs:
         with:
           version: 1.9.4 
 
-      - name: Clear Packer Plugin Cache
-        run: packer plugin clear
-
       - name: Debugging Information
         run: |
           packer version
