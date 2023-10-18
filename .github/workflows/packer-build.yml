@@ -10,18 +10,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Build and create zip
+    - name: Repository Zip file creation
       run: |
-        # Create a zip file of the desired content
-        cd ..
-        zip -r webapp.zip ./
-      working-directory: ${{ github.workspace }}
+        mkdir -p zip
+        git archive --format=zip HEAD -o zip/webapp.zip
+        ls -l zip
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
-        name: repository-zip
-        path: webapp.zip
-
-    
-
+        name: webapp-zip
+        path: zip/webapp.zip

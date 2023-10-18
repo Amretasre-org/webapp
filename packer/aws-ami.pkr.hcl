@@ -79,7 +79,7 @@ build {
   }
 
   provisioner "file" {
-    source      = "./web_app_ami.zip"
+    source      = "./zip/web_app_ami.zip"
     destination = "/home/admin/webapp.zip"
   }
 
