@@ -24,8 +24,8 @@ jobs:
     - name: Set up AWS CLI
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ secrets.AMI_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AMI_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AMI_AWS_REGION }}
 
     - name: Setup `packer`
