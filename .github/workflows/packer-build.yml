@@ -1,0 +1,27 @@
+name: Build AMI and Include Artifact
+
+on: [push]
+
+jobs:
+  build_ami:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Build and create zip
+      run: |
+        # Create a zip file of the desired content
+        cd ..
+        zip -r webapp.zip ./
+      working-directory: ${{ github.workspace }}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: repository-zip
+        path: webapp.zip
+
+    
+

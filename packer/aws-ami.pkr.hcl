@@ -27,17 +27,6 @@ variable "subnetId" {
   default = "subnet-048db4a1f0b8d276c"
 }
 
-# variable "aws_access_key" {
-#   type = string 
-#   description = "AWS Access Key ID"
-#   default = ""
-# }
-
-# variable "aws_secret_key" {
-#   type = string 
-#   description = "AWS Secret Access Key"
-# }
-
 source "amazon-ebs" "csye6225_ami" {
   # profile = "ami-creation" # have to come from github actions
   ami_name      = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
@@ -80,11 +69,29 @@ build {
   sources = [
     "source.amazon-ebs.csye6225_ami",
   ]
+
   provisioner "shell" {
     environment_vars = [
       "DEBIAN_FRONTEND=noninteractive",
-      "CHECKPOINT_DISABLE=1"
+      "CHECKPOINT_DISABLE=1",
     ]
     script = "./debian-initial-setup.sh"
   }
+
+  provisioner "file" {
+    source      = "./web_app_ami.zip"
+    destination = "/home/admin/webapp.zip"
+  }
+
+  provisioner "shell" {
+    script = "./debian-build-node-app.sh"
+  }
 }
+  # provisioner "shell" {
+  #   environment_vars = [
+  #     "DEBIAN_FRONTEND=noninteractive",
+  #     "CHECKPOINT_DISABLE=1"
+  #   ]
+  #   script = "./debian-initial-setup.sh"
+  # }
+# }
