@@ -16,40 +16,20 @@ else
   fi
 fi
 # Unzip the webapp.zip file to /opt directory
-sudo mkdir -p /opt/
-sudo mv /home/admin/webapp.zip /opt/webapp.zip
-cd /opt/ || exit
+sudo mkdir -p /opt/dist/
+sudo mv /home/admin/webapp.zip /opt/dist/webapp.zip
 # Print the directory structure
-ls -R /opt/
+ls -lrth  /opt/dist
+zip_file="/opt/dist/webapp.zip"
 
-zip_file="/opt/webapp.zip"
-
-# Check if the ZIP file exists
 if [ -f "$zip_file" ]; then
-  # Unzip the file to the specified destination folder
-  unzip "$zip_file" 
+  sudo unzip "$zip_file"
+  if [ -d "/opt/dist/webapp" ]; then
+    cd "/opt/dist/webapp/" || exit
+    sudo npm install
 else
-  echo "ZIP file not found: $zip_file"
+    echo "Directory /opt/dist/webapp/ does not exist."
 fi
-
-# sudo unzip webapp.zip
-
-# Change directory to the unzipped webapp directory, exit if cd fails
-# if cd webapp; then
-
-#   echo "HOST=127.0.0.1" > .env
-# 	echo "MYSQLUSER=root" >> .env
-#   echo "PASSWORD=soumya6225" >> .env
-  
-#   # Run npm install
-#   echo "cd inside the webapp directory"
-#   if sudo npm i; then
-#     echo "npm install completed without errors."
-#   else
-#     echo "npm install encountered errors."
-#     exit 1
-#   fi
-# else
-#   echo "Failed to change directory to /webapp. Exiting."
-#   exit 1
-# fi
+else
+  echo "webapp.zip does not exist."
+fi
