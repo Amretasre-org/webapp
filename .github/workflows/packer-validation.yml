@@ -49,5 +49,12 @@ jobs:
         run: echo "Packer Validation starts"
 
       - name: Validate Packer Configuration
-        run: ./validate-packer.sh
+        run: |
+          echo "Validating Packer configuration..."
+          if packer validate packer/aws-ami.pkr.hcl; then
+            echo "Packer configuration is valid."
+          else
+            echo "Packer configuration validation failed."
+            exit 1
+          fi
 

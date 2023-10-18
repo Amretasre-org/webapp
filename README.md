@@ -42,3 +42,10 @@ packer validate packer/aws-ami.pkr.hcl
 export AWS_PROFILE=ami-creation
 packer build packer/aws-ami.pkr.hcl 
 ```
+
+### Command to find the AWS account ID
+
+```
+aws sts get-caller-identity --profile profile_name
+```
+

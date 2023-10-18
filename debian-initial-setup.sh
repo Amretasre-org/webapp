@@ -13,36 +13,21 @@ sudo apt install -y mariadb-server
 sudo apt install -y nodejs
 sudo apt-get install -y npm
 
-# Load environment variables from .env file
-# shellcheck disable=SC1091
-if [ -f .env ]; then
-  source .env
-else
-  echo "Error: .env file not found."
-  exit 1
-fi
-
 # Define your MySQL root password
-MYSQL_ROOT_PASSWORD="$PASSWORD"
-SQLUSER="$MYSQLUSER"
-HOST_NAME="$HOST"
+MYSQL_PASSWORD=root
+MYSQL_ROOT_USER=root
+DATABASE_NAME=Assignments_Demo_DB
 
-# Echo env variables
-echo "HOST environment variable: $HOST_NAME"
-echo "MYSQLUSER environment variable: $SQLUSER"
-echo "Password variable: $MYSQL_ROOT_PASSWORD"
+sudo mysql -e "SET PASSWORD FOR root@localhost = PASSWORD('$MYSQL_PASSWORD');FLUSH PRIVILEGES;"
 
-# Check if the database exists before creating it
-if ! mysql -u root -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'Assignments_Demo_DB'" | grep -q "Assignments_Demo_DB"; then
-    mysql -u root -e "CREATE DATABASE Assignments_Demo_DB;"
-fi
+printf "%s\n n\n n\n n\n n\n n\n y\n" "$MYSQL_PASSWORD" | sudo mysql_secure_installation
 
-# Create MySQL user and grant privileges
-mysql -u root -e "CREATE USER '$SQLUSER'@'$HOST_NAME' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';"
-mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '$SQLUSER'@'$HOST_NAME';"
-mysql -u root -e "FLUSH PRIVILEGES;"
+sudo mysql -e "GRANT ALL PRIVILEGES ON \`${DATABASE}\`.* TO '$MYSQL_ROOT_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASSWORD';"
+
+mysql -u root -p$MYSQL_PASSWORD -Bse "CREATE DATABASE $DATABASE_NAME;"
+
+mysql -u root -p$MYSQL_PASSWORD -Bse "SHOW DATABASES;"
 
 echo "MySQL setup completed."
 
-exit
-
+sudo apt-get clean
