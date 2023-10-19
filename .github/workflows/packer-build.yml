@@ -1,25 +1,22 @@
-name: Integration Testing Workflow
+name: Build AMI and Include Artifact
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
 env:
   HOST: "localhost"
   MYSQLUSER: "root"
-  PASSWORD: "root"
+  PASSWORD: ${{ secrets.SQL_PASSWORD }}
 
 jobs:
-  integration-test:
+  build_ami:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v2
-
-    - name: Hello Message
-      run: echo "Hello, GitHub Actions!"
 
     - name: Starting Node JS message
       run: echo "Setting up Node JS"
@@ -34,12 +31,6 @@ jobs:
 
     - name: Starting installation for mysql-server
       run: echo "mysql-server installation done"
-
-    - name: Show environment variables
-      run: |
-        echo "HOST=${HOST}"
-        echo "MYSQLUSER=${MYSQLUSER}"
-        echo "PASSWORD=${PASSWORD}"
         
     - name: configuremysql
       run: |
@@ -62,3 +53,34 @@ jobs:
 
     - name: run tests
       run: npm test
+
+    - name: Zip the artifact
+      run: |
+        zip -r webapp.zip ./
+        ls -lrth
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-artifact
+        path: webapp.zip
+
+    - name: Set up AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AMI_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AMI_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AMI_AWS_REGION }}
+
+    - name: Setup `packer`
+      uses: hashicorp/setup-packer@main
+      id: setup
+      with:
+        version: 'latest'
+
+    - name: Packer Init
+      run: packer init packer/aws-ami.pkr.hcl
+
+    - name: Packer Build
+      run: |
+        packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl

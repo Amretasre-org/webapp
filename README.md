@@ -49,3 +49,11 @@ packer build packer/aws-ami.pkr.hcl
 aws sts get-caller-identity --profile profile_name
 ```
 
+### Commands to run when ssh to ec2
+
+```
+chmod 400 pem_file_name
+ssh -i pem_file_name admin@ip_add
+cd /opt/webapp
+```
+
