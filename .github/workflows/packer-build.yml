@@ -5,7 +5,7 @@ on: [push]
 env:
   HOST: "localhost"
   MYSQLUSER: "root"
-  PASSWORD: "root"
+  PASSWORD: ${{ secrets.SQL_PASSWORD }}
 
 jobs:
   build_ami:

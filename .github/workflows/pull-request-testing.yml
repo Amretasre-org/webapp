@@ -8,7 +8,7 @@ on:
 env:
   HOST: "localhost"
   MYSQLUSER: "root"
-  PASSWORD: "root"
+  PASSWORD: ${{ secrets.SQL_PASSWORD }}
 
 jobs:
   integration-test:
