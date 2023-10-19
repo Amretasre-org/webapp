@@ -27,6 +27,17 @@ jobs:
       - name: Starting Packer Formatting Check
         run: echo "Packer Formatting check starts"
 
+      - name: Zip the artifact
+        run: |
+          zip -r webapp.zip ./
+          ls -lrth
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-artifact
+          path: webapp.zip
+
       - name: Check Packer File Formatting
         run: |
           # Run 'packer fmt' and capture the output

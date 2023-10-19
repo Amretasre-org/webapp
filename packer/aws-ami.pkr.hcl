@@ -84,11 +84,3 @@ build {
     script = "./debian-build-node-app.sh"
   }
 }
-  # provisioner "shell" {
-  #   environment_vars = [
-  #     "DEBIAN_FRONTEND=noninteractive",
-  #     "CHECKPOINT_DISABLE=1"
-  #   ]
-  #   script = "./debian-initial-setup.sh"
-  # }
-# }
