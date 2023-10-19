@@ -2,6 +2,11 @@ name: Build AMI and Include Artifact
 
 on: [push]
 
+env:
+  HOST: "localhost"
+  MYSQLUSER: "root"
+  PASSWORD: "root"
+
 jobs:
   build_ami:
     runs-on: ubuntu-latest
@@ -9,6 +14,42 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+
+    - name: Starting Node JS message
+      run: echo "Setting up Node JS"
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+
+    - name: Finishing Node JS set up message
+      run: echo "Node JS installation done"
+
+    - name: Starting installation for mysql-server
+      run: echo "mysql-server installation done"
+        
+    - name: configuremysql
+      run: |
+        sudo apt-get update
+        sudo systemctl start mysql
+        sudo systemctl status mysql
+        mysql -u root -p"${PASSWORD}" -e "CREATE DATABASE Assignments_Demo_DB;"
+
+    - name: Starting dependency installation
+      run: echo "Installing Dependencies"
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Dependency installation completed
+      run: echo "Dependencies Installed"
+
+    - name: Running test files
+      run: echo "Starting test"
+
+    - name: run tests
+      run: npm test
 
     - name: Zip the artifact
       run: |
@@ -39,4 +80,4 @@ jobs:
 
     - name: Packer Build
       run: |
-        packer build packer/aws-ami.pkr.hcl
+        packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl

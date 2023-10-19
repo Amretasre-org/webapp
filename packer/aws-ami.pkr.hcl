@@ -28,7 +28,7 @@ variable "subnetId" {
 }
 
 source "amazon-ebs" "csye6225_ami" {
-  # profile = "ami-creation" # have to come from github actions
+  profile = "ami-creation" # have to come from github actions
   ami_name      = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   instance_type = "t2.micro"
   region        = "${var.region}"
@@ -46,9 +46,6 @@ source "amazon-ebs" "csye6225_ami" {
   source_ami = "${var.source-ami}"
   ssh_username = "${var.username}"
   subnet_id = "${var.subnetId}"
-
-  # access_key = "${var.aws_access_key}"  
-  # secret_key = "${var.aws_secret_key}"
 
   tags = {
     "Name" = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}",
