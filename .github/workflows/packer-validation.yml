@@ -44,7 +44,7 @@ jobs:
       - name: Check Packer File Formatting
         run: |
           # Run 'packer fmt' and capture the output
-          fmt_output=$(packer fmt -check .)
+          fmt_output=$(packer fmt -check packer/aws-ami.pkr.hcl)
 
           # Check if there is any output from 'packer fmt'
           if [ -n "$fmt_output" ]; then
