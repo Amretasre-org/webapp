@@ -8,7 +8,7 @@ packer {
 }
 
 variable "region" {
-type = string  
+  type = string  
   default = "us-east-1"
 }
 
@@ -99,7 +99,7 @@ build {
   }
 
   provisioner "file" {
-    source      = "./webapp.zip"
+    source      = "./webapp/webapp.zip"
     destination = "/home/admin/webapp.zip"
   }
 
