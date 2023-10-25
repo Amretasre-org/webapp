@@ -7,7 +7,7 @@ USER="systemd-user"
 GROUP="csye6225"
 
 # Create a system user
-sudo useradd --system --shell /bin/false --no-create-home --disabled-login -g $GROUP $USER
+sudo useradd --system --shell /bin/false --no-create-home -g $GROUP $USER
 
 cat <<EOF > "/etc/systemd/system/$APP_NAME.service"
 [Unit]
@@ -34,8 +34,6 @@ EOF
 
 # Set permissions on the service unit file
 chmod 664 "/etc/systemd/system/$APP_NAME.service"
-
-
 
 systemctl enable $APP_NAME
 systemctl start $APP_NAME

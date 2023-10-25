@@ -4,7 +4,6 @@
 cd /opt/dist
 
 # Start your Node.js application using npm
-npm install # Install any required dependencies (if not already installed)
 npm run prd-start
 
 # cd /opt/dist
