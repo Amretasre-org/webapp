@@ -44,28 +44,4 @@ db.sequelize.authenticate()
   console.log("Error", err);
 })
 
-// async function connectToDatabase() {
-//   try {
-//     await sequelize.authenticate();
-//     console.log("Connected to DB");
-//   } catch (err) {
-//     console.error("Error connecting to DB:", err);
-//     // Retry after a delay
-//     setTimeout(connectToDatabase, 5000); // Retry after 5 seconds
-//     return;
-//   }
-
-//   // Once connected, synchronize the models and perform other tasks
-//   try {
-//     await sequelize.sync({ force: false });
-//     console.log("Database synchronized");
-//     console.log("Adding users to DB");
-//     await userController.addUser(db);
-//   } catch (err) {
-//     console.error("Error during database synchronization:", err);
-//   }
-// }
-
-// connectToDatabase(); // Start the database connection
-
 module.exports = db;
