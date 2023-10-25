@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         num_of_attempts: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
         deadline: {
@@ -30,13 +30,13 @@ module.exports = (sequelize, DataTypes) => {
         }
     });
 
-    Assignment.associate = (models) => {
-        Assignment.belongsTo(models.User, {
-            foreignKey: 'userId', 
-            as: 'user', 
-            targetKey: 'id'
-        });
-    };
+    // Assignment.associate = (models) => {
+    //     Assignment.belongsTo(models.User, {
+    //         foreignKey: 'userId', 
+    //         as: 'user', 
+    //         targetKey: 'id'
+    //     });
+    // };
 
     return Assignment;
 

@@ -25,10 +25,16 @@ db.sequelize = sequelize; // the instance of Sequelize
 db.users = require("./userModel")(sequelize, DataTypes);
 db.assignments = require("./assignmentModel")(sequelize, DataTypes);
 
+db.assignments.belongsTo(db.users, {
+  foreignKey: 'userId',
+  as:'user',
+  targetKey: 'id'
+})
+
 db.sequelize.authenticate()
 .then(() => {
   console.log("Connected to DB");
-  db.sequelize.sync({force: false});
+  return db.sequelize.sync({force: false});
 })
 .then(async () => {
   console.log("Adding users to DB");

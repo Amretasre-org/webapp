@@ -37,7 +37,7 @@ ls -al
 ## Packer commands
 
 ```
-packer fmt .
+packer fmt packer/aws-ami.pkr.hcl 
 packer validate packer/aws-ami.pkr.hcl
 export AWS_PROFILE=ami-creation
 packer build packer/aws-ami.pkr.hcl 
@@ -55,5 +55,17 @@ aws sts get-caller-identity --profile profile_name
 chmod 400 pem_file_name
 ssh -i pem_file_name admin@ip_add
 cd /opt/webapp
+```
+
+
+```
+systemctl status Assignment-node-app.service
+journalctl -u Assignment-node-app.service
+
+sudo systemctl daemon-reload
+sudo systemctl restart Assignment-node-app.service
+
+sudo chown systemd-user:csye6225 /var/log/healthcheck.service/out.log
+sudo chmod 644 /var/log/healthcheck.service/out.log
 ```
 

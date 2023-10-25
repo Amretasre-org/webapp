@@ -1,6 +1,6 @@
 name: Build AMI and Include Artifact
 
-on:
+on:	
   push:
     branches:
       - main
