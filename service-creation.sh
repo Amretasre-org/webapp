@@ -12,7 +12,7 @@ sudo groupadd ${GROUP}
 # Create a system user
 sudo useradd --system --shell /bin/false --no-create-home -g $GROUP $USER
 
-cat <<EOF > "/etc/systemd/system/$APP_NAME.service"
+cat <<EOF | sudo tee /etc/systemd/system/$APP_NAME.service
 [Unit]
 Description=$APP_NAME
 ConditionPathExists=/opt/dist/
@@ -38,5 +38,5 @@ EOF
 # Set permissions on the service unit file
 sudo chmod 664 "/etc/systemd/system/$APP_NAME.service"
 
-systemctl enable $APP_NAME
-systemctl start $APP_NAME
+sudo systemctl enable $APP_NAME
+sudo systemctl start $APP_NAME
