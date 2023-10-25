@@ -9,6 +9,8 @@ GROUP="csye6225"
 # Create a system group
 sudo groupadd ${GROUP}
 
+sudo chmod +x /opt/dist/start-app.sh
+
 # Create a system user
 sudo useradd --system --shell /bin/false --no-create-home -g $GROUP $USER
 
