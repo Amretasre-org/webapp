@@ -3,6 +3,10 @@
 # Change to the directory where your Node.js application is located
 cd /opt/dist
 
+echo "HOST=$HOST" > .env
+echo "MYSQLUSER=$MYSQLUSER" >> .env
+echo "PASSWORD=$PASSWORD" >> .env
+
 # Start your Node.js application using npm
 npm run prd-start
 

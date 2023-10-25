@@ -24,6 +24,7 @@ After=cloud-init.service
 
 [Service]
 Type=simple
+EnvironmentFile=-/etc/environment
 WorkingDirectory=/opt/dist/
 ExecStart=$APP_DIRECTORY/start-app.sh start
 ExecStop=$APP_DIRECTORY/start-app.sh stop
@@ -37,6 +38,7 @@ SyslogIdentifier=csye6225
 
 [Install]
 WantedBy=multi-user.target
+WantedBy=cloud-init.target
 EOF
 
 # Set permissions on the service unit file
