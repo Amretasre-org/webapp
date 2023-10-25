@@ -6,6 +6,9 @@ APP_DIRECTORY="/opt/dist"
 USER="systemd-user"
 GROUP="csye6225"
 
+# Create a system group
+sudo groupadd ${GROUP}
+
 # Create a system user
 sudo useradd --system --shell /bin/false --no-create-home -g $GROUP $USER
 
@@ -33,7 +36,7 @@ WantedBy=multi-user.target
 EOF
 
 # Set permissions on the service unit file
-chmod 664 "/etc/systemd/system/$APP_NAME.service"
+sudo chmod 664 "/etc/systemd/system/$APP_NAME.service"
 
 systemctl enable $APP_NAME
 systemctl start $APP_NAME
