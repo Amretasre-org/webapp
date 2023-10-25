@@ -34,7 +34,7 @@ db.assignments.belongsTo(db.users, {
 db.sequelize.authenticate()
 .then(() => {
   console.log("Connected to DB");
-  db.sequelize.sync({force: false});
+  return db.sequelize.sync({force: false});
 })
 .then(async () => {
   console.log("Adding users to DB");

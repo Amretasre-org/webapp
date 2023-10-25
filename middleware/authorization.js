@@ -26,10 +26,7 @@ const authorization = async (req, res, next) => {
             res.status(500).send('Internal Server Error');
         }
     } else {
-        res.status(400).json({
-            status: "Bad request",
-            message: "Login credentials missing"
-        });
+        res.status(401).send('Unauthorized');
     }
 };
 

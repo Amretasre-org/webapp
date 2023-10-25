@@ -12,6 +12,9 @@ sudo groupadd ${GROUP}
 # Create a system user
 sudo useradd --system --shell /bin/false --no-create-home -g $GROUP $USER
 
+sudo mkdir -p /var/log/$APP_NAME.service/out.log
+sudo mkdir -p /var/log/$APP_NAME.service/error.log
+
 cat <<EOF | sudo tee /etc/systemd/system/$APP_NAME.service
 [Unit]
 Description=$APP_NAME
@@ -27,8 +30,8 @@ Restart=always
 User=$USER
 Group=$GROUP
 Environment=NODE_ENV=production
-StandardOutput=file:/var/log/healthcheck.service/out.log
-StandardError=file:/var/log/healthcheck.service/error.log
+StandardOutput=file:/var/log/$APP_NAME.service/out.log
+StandardError=file:/var/log/$APP_NAME.service/error.log
 SyslogIdentifier=csye6225
 
 [Install]
@@ -37,6 +40,5 @@ EOF
 
 # Set permissions on the service unit file
 sudo chmod 664 "/etc/systemd/system/$APP_NAME.service"
-
-sudo systemctl enable $APP_NAME
-sudo systemctl start $APP_NAME
+sudo chown $USER:csye6225 /var/log/$APP_NAME.service/
+sudo chmod 755 /var/log/$APP_NAME.service/

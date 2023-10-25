@@ -57,3 +57,17 @@ ssh -i pem_file_name admin@ip_add
 cd /opt/webapp
 ```
 
+
+
+
+```
+systemctl status YOUR_SERVICE_NAME
+journalctl -u Assignment-node-app.service
+
+sudo systemctl daemon-reload
+sudo systemctl restart Assignment-node-app.service
+
+sudo chown systemd-user:csye6225 /var/log/healthcheck.service/out.log
+sudo chmod 644 /var/log/healthcheck.service/out.log
+```
+

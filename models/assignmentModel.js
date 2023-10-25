@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         num_of_attempts: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
         deadline: {
