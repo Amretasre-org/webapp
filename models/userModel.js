@@ -28,13 +28,13 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: false, // Disable timestamps for this model
     });
 
-    User.associate = (models) => {
-        User.hasMany(models.Assignment, {
-            foreignKey: 'userId', // The foreign key in the Assignments table
-            as: 'assignments', // Alias for the association
-            sourceKey: 'id'
-        });
-    };
+    // User.associate = (models) => {
+    //     User.hasMany(models.Assignment, {
+    //         foreignKey: 'userId', // The foreign key in the Assignments table
+    //         as: 'assignments', // Alias for the association
+    //         sourceKey: 'id'
+    //     });
+    // };
 
     return User;
 

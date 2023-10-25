@@ -37,7 +37,7 @@ ls -al
 ## Packer commands
 
 ```
-packer fmt .
+packer fmt packer/aws-ami.pkr.hcl 
 packer validate packer/aws-ami.pkr.hcl
 export AWS_PROFILE=ami-creation
 packer build packer/aws-ami.pkr.hcl 

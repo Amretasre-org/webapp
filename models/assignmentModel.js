@@ -30,13 +30,13 @@ module.exports = (sequelize, DataTypes) => {
         }
     });
 
-    Assignment.associate = (models) => {
-        Assignment.belongsTo(models.User, {
-            foreignKey: 'userId', 
-            as: 'user', 
-            targetKey: 'id'
-        });
-    };
+    // Assignment.associate = (models) => {
+    //     Assignment.belongsTo(models.User, {
+    //         foreignKey: 'userId', 
+    //         as: 'user', 
+    //         targetKey: 'id'
+    //     });
+    // };
 
     return Assignment;
 
