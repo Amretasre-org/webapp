@@ -58,10 +58,8 @@ cd /opt/webapp
 ```
 
 
-
-
 ```
-systemctl status YOUR_SERVICE_NAME
+systemctl status Assignment-node-app.service
 journalctl -u Assignment-node-app.service
 
 sudo systemctl daemon-reload

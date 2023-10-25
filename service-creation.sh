@@ -12,8 +12,7 @@ sudo groupadd ${GROUP}
 # Create a system user
 sudo useradd --system --shell /bin/false --no-create-home -g $GROUP $USER
 
-sudo mkdir -p /var/log/$APP_NAME.service/out.log
-sudo mkdir -p /var/log/$APP_NAME.service/error.log
+sudo mkdir -p /var/log/$APP_NAME.service
 
 cat <<EOF | sudo tee /etc/systemd/system/$APP_NAME.service
 [Unit]
