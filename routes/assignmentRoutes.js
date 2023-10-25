@@ -9,7 +9,7 @@ router.post("/", authorization, (req, res) => {
     assignmentController.createAssignment(req, res, db);
 });
 
-router.get("/", (req, res) => assignmentController.displayAllAssignments(req, res, db));
+router.get("/", authorization, (req, res) => assignmentController.displayAllAssignments(req, res, db));
 
 router.get("/:id", authorization, (req, res) => assignmentController.getAssignment(req, res, db));
 
