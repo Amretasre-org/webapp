@@ -66,6 +66,6 @@ db.sequelize.authenticate()
 //   }
 // }
 
-connectToDatabase(); // Start the database connection
+// connectToDatabase(); // Start the database connection
 
 module.exports = db;
