@@ -9,6 +9,7 @@ function decodeUserId(req) {
 }
 
 const createAssignment = async (req, res, db) => {
+    console.log("Creating assignment");
     try {
 
         if (Object.entries(req.body).length === 0 || Object.keys(req.body).length === 0 || JSON.stringify(req.body) === '{}') {
@@ -44,7 +45,7 @@ const createAssignment = async (req, res, db) => {
                 num_of_attempts,
                 deadline
             });
-            res.status(200).send(assignment)
+            res.status(201).send(assignment)
         }
     }
     catch (e) {
@@ -80,6 +81,7 @@ const createAssignment = async (req, res, db) => {
 // }
 
 const displayAllAssignments = async (req, res, db) => {
+    console.log("Display All Assignments");
     try {
         let assignments = await db.assignments.findAll({});
         res.status(200).send(assignments);
@@ -91,6 +93,7 @@ const displayAllAssignments = async (req, res, db) => {
 
 
 const getAssignment = async (req, res, db) => {
+    console.log("Display particular assignment");
     try {
         const assignment_id = req.params.id;
         if (!assignment_id) {
@@ -114,6 +117,7 @@ const getAssignment = async (req, res, db) => {
 
 
 const updateAssignment = async (req, res, db) => {
+    console.log("Updating a particular assignment")
     try {
         if (Object.entries(req.body).length === 0 || Object.keys(req.body).length === 0 || JSON.stringify(req.body) === '{}') {
             return res.status(400).send({ message: 'Bad Request' });
@@ -173,6 +177,7 @@ const updateAssignment = async (req, res, db) => {
 }
 
 const deleteAssignment = async (req, res, db) => {
+    console.log("Deleting a particular assignment");
     try {
         let id = req.params.id;
 
