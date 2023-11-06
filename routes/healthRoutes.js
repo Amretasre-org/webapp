@@ -22,6 +22,7 @@ function isRequestHeader(req, res) {
 }
 
 function checkGetCall(method = "Post", res) {
+    console.log(`${method} Method Not allowed`);
     res.status(405).send();
 }
 
@@ -29,6 +30,7 @@ function checkGetCall(method = "Post", res) {
 router.get("/healthz", async (req, res) => {
     try {
         if (isRequestHeader(req, res)) {
+            console.log("Healthy connection");
             await db.sequelize.authenticate();
             res.setHeader('Content-Type', 'application/json');
             res.setHeader('Cache-Control', 'no-cache');
