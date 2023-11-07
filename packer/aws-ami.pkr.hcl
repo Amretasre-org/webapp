@@ -111,4 +111,8 @@ build {
     script          = "./service-creation.sh"
     execute_command = "chmod +x {{ .Path }}; {{ .Vars }} {{ .Path }}"
   }
+
+  provisioner "shell" {
+    script = "./logging-setup.sh"
+  }
 }
