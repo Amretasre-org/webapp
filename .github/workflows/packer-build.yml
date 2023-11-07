@@ -1,6 +1,9 @@
 name: Build AMI and Include Artifact
 
-on:	[push]
+on:	
+  push:
+    branches:
+      - main
 
 env:
   HOST: "localhost"
