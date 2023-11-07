@@ -2,7 +2,13 @@ const express = require("express");
 const router = express.Router();
 const db = require("../models/index");
 const StatsD = require('node-statsd');
-const statsdClient = new StatsD();
+const statsdClient = new StatsD(({
+    host: 'localhost',  // Since it's on the same instance
+    port: 8125,          // The port where the CloudWatch Agent is listening
+  }));
+const log4js = require('../log4js-config');
+
+const logger = log4js.getLogger();
 
 function isRequestHeader(req, res) {
     if (req.headers['cache-control'] != "no-cache") {
@@ -24,25 +30,28 @@ function isRequestHeader(req, res) {
 }
 
 function checkGetCall(method = "Post", res) {
-    console.log(`${method} Method Not allowed`);
+    console.log(`${method} method Not allowed`);
+    logger.info(`${method} method Not allowed in health route`);
     statsdClient.increment('api_calls');
     res.status(405).send();
 }
 
 
 router.get("/healthz", async (req, res) => {
-    statsdClient.increment('api_calls');
     try {
+        statsdClient.increment('api_calls');
         if (isRequestHeader(req, res)) {
             console.log("Healthy connection");
+            logger.info("Healthy connection established");
             await db.sequelize.authenticate();
             res.setHeader('Content-Type', 'application/json');
             res.setHeader('Cache-Control', 'no-cache');
             res.status(200).send();
-
         }
     } catch (err) {
         console.error(err);
+        logger.error("Error in get health route");
+        logger.error(err);
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control', 'no-cache');
         res.status(503).send();
