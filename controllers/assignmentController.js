@@ -1,5 +1,7 @@
 const base64 = require("base-64");
 require('dotenv').config();
+const StatsD = require('node-statsd');
+const statsdClient = new StatsD();
 
 function decodeUserId(req) {
     const authHeader = req.headers['authorization'];
@@ -10,6 +12,7 @@ function decodeUserId(req) {
 
 const createAssignment = async (req, res, db) => {
     console.log("Creating assignment");
+    statsdClient.increment('api_calls');
     try {
 
         if (Object.entries(req.body).length === 0 || Object.keys(req.body).length === 0 || JSON.stringify(req.body) === '{}') {
@@ -82,6 +85,7 @@ const createAssignment = async (req, res, db) => {
 
 const displayAllAssignments = async (req, res, db) => {
     console.log("Display All Assignments");
+    statsdClient.increment('api_calls');
     try {
         let assignments = await db.assignments.findAll({});
         res.status(200).send(assignments);
@@ -94,6 +98,7 @@ const displayAllAssignments = async (req, res, db) => {
 
 const getAssignment = async (req, res, db) => {
     console.log("Display particular assignment");
+    statsdClient.increment('api_calls');
     try {
         const assignment_id = req.params.id;
         if (!assignment_id) {
@@ -118,6 +123,7 @@ const getAssignment = async (req, res, db) => {
 
 const updateAssignment = async (req, res, db) => {
     console.log("Updating a particular assignment")
+    statsdClient.increment('api_calls');
     try {
         if (Object.entries(req.body).length === 0 || Object.keys(req.body).length === 0 || JSON.stringify(req.body) === '{}') {
             return res.status(400).send({ message: 'Bad Request' });
@@ -178,6 +184,7 @@ const updateAssignment = async (req, res, db) => {
 
 const deleteAssignment = async (req, res, db) => {
     console.log("Deleting a particular assignment");
+    statsdClient.increment('api_calls');
     try {
         let id = req.params.id;
 

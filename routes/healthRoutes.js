@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../models/index");
+const StatsD = require('node-statsd');
+const statsdClient = new StatsD();
 
 function isRequestHeader(req, res) {
     if (req.headers['cache-control'] != "no-cache") {
@@ -23,11 +25,13 @@ function isRequestHeader(req, res) {
 
 function checkGetCall(method = "Post", res) {
     console.log(`${method} Method Not allowed`);
+    statsdClient.increment('api_calls');
     res.status(405).send();
 }
 
 
 router.get("/healthz", async (req, res) => {
+    statsdClient.increment('api_calls');
     try {
         if (isRequestHeader(req, res)) {
             console.log("Healthy connection");
