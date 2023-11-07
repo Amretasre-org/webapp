@@ -1,4 +1,5 @@
 const log4js = require('log4js');
+const cloudwatchAppender = require('log4js-cloudwatch-appender');
 
 log4js.configure({
   appenders: {
