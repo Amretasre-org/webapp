@@ -21,7 +21,7 @@ const createAssignment = async (req, res, db) => {
         console.log("Creating assignment");
         statsdClient.increment('api_calls');
         logger.info('Creating assignment api call');
-        if (Object.entries(req.body).length === 0 || Object.keys(req.body).length === 0 || JSON.stringfy(req.body) === '{}') {
+        if (Object.entries(req.body).length === 0 || Object.keys(req.body).length === 0 || JSON.stringify(req.body) === '{}') {
             logger.error('Bad Request in create assignment');
             return res.status(400).send({ message: 'Bad Request' });
         }
