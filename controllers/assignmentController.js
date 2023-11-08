@@ -276,12 +276,21 @@ const deleteAssignment = async (req, res, db) => {
     }
 }
 
+const patchAssignmentCall = (req, res) => {
+    logger.info("Patch method is not allowed for assignment");
+    console.log("Patch method is not allowed for assignment");
+    return res.status(405).json({
+        message: "Patch Method Not Allowed For Assignment"
+    })
+}
+
 
 module.exports = {
     createAssignment,
     displayAllAssignments,
     getAssignment,
     updateAssignment,
-    deleteAssignment
+    deleteAssignment,
+    patchAssignmentCall
 };
 
