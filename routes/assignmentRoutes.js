@@ -17,9 +17,9 @@ router.put("/:id", authorization, (req, res) => assignmentController.updateAssig
 
 router.delete("/:id", authorization, (req, res) => assignmentController.deleteAssignment(req, res, db));
 
-router.patch("/", (req, res) => res.status(405).send({'message': 'Method Not Allowed'}));
+router.patch("/", (req, res) => assignmentController.patchAssignmentCall(req, res));
 
-router.patch("/:id", (req, res) => res.status(405).send({'message': 'Method Not Allowed'}));
+router.patch("/:id", (req, res) => assignmentController.patchAssignmentCall(req, res));
 
 
 module.exports = router;
