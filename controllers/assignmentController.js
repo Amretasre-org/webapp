@@ -239,8 +239,13 @@ const deleteAssignment = async (req, res, db) => {
         statsdClient.increment('api_calls');
         logger.info('Deleting a specific assignment method call');
         let id = req.params.id;
-
         const userId = req.user.id;
+
+        if (req.body) {
+            logger.error('No request body needed for delete');
+            return res.status(400).send({message: "No body needed for deletion"});
+        } 
+
 
         let assignment = await db.assignments.findOne({ where: { id: id } });
         if (!assignment) { 
