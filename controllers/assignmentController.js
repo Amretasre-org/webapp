@@ -19,7 +19,7 @@ function decodeUserId(req) {
 const createAssignment = async (req, res, db) => {
     try {
         console.log("Creating assignment");
-        statsdClient.increment('api_calls');
+        statsdClient.increment('post.assignment.create');
         logger.info('Creating assignment api call');
         if (Object.entries(req.body).length === 0 || Object.keys(req.body).length === 0 || JSON.stringify(req.body) === '{}') {
             logger.error('Bad Request in create assignment');
@@ -57,7 +57,6 @@ const createAssignment = async (req, res, db) => {
             return res.status(404).send('User not found');
         } else {
             const assignment = await db.assignments.create({
-                id: Buffer.from(`${name}`, 'utf8').toString('base64'),
                 userId: user.id,
                 name,
                 points,
@@ -105,7 +104,7 @@ const createAssignment = async (req, res, db) => {
 const displayAllAssignments = async (req, res, db) => {
     try {
         console.log("Display All Assignments");
-        statsdClient.increment('api_calls');
+        statsdClient.increment('get.assignment.displayAll');
         logger.info('Display All Assignments api call');
         let assignments = await db.assignments.findAll({});
         logger.info('Successful get all api call');
@@ -122,7 +121,7 @@ const displayAllAssignments = async (req, res, db) => {
 const getAssignment = async (req, res, db) => {
     try {
         console.log("Display particular assignment");
-        statsdClient.increment('api_calls');
+        statsdClient.increment('get.assignment.display');
         logger.info('Display particular Assignment method call');
         const assignment_id = req.params.id;
         if (!assignment_id) {
@@ -155,7 +154,7 @@ const getAssignment = async (req, res, db) => {
 
 const updateAssignment = async (req, res, db) => {
     console.log("Updating a particular assignment")
-    statsdClient.increment('api_calls');
+    statsdClient.increment('put.assignment.update');
     try {
         logger.info('Updating a particular assignment call');
         if (Object.entries(req.body).length === 0 || Object.keys(req.body).length === 0 || JSON.stringify(req.body) === '{}') {
@@ -206,7 +205,7 @@ const updateAssignment = async (req, res, db) => {
                 .then((assignments) => {
                     if (assignments.length > 0) {
                         logger.info("Assignment updated successfully")
-                        res.status(200).send({ message: 'Assignment updated successfully' });
+                        res.status(204).send({ message: 'Assignment updated successfully' });
                     } else {
                         logger.error("Assignment not found, in Update assignment method call");
                         return res.status(404).send({ message: 'Assignment not found' });
@@ -236,7 +235,7 @@ const updateAssignment = async (req, res, db) => {
 const deleteAssignment = async (req, res, db) => {
     try {
         console.log("Deleting a particular assignment");
-        statsdClient.increment('api_calls');
+        statsdClient.increment('delete.assignment.delete');
         logger.info('Deleting a specific assignment method call');
         let id = req.params.id;
         const userId = req.user.id;
@@ -284,6 +283,7 @@ const deleteAssignment = async (req, res, db) => {
 const patchAssignmentCall = (req, res) => {
     logger.info("Patch method is not allowed for assignment");
     console.log("Patch method is not allowed for assignment");
+    statsdClient.increment('put.assignment.patch');
     return res.status(405).json({
         message: "Patch Method Not Allowed For Assignment"
     })

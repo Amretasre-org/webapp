@@ -29,17 +29,17 @@ function isRequestHeader(req, res) {
     };
 }
 
-function checkGetCall(method = "Post", res) {
+function checkGetCall(method = "post", res) {
     console.log(`${method} method Not allowed`);
     logger.info(`${method} method Not allowed in health route`);
-    statsdClient.increment('api_calls');
+    statsdClient.increment(`${method}.healthz`);
     res.status(405).send();
 }
 
 
 router.get("/healthz", async (req, res) => {
     try {
-        statsdClient.increment('api_calls');
+        statsdClient.increment('get.healthz');
         if (isRequestHeader(req, res)) {
             console.log("Healthy connection");
             logger.info("Healthy connection established");
