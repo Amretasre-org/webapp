@@ -1,13 +1,15 @@
 const User = require("./userModel");
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = (sequelize, DataTypes) => {
 
     const Assignment = sequelize.define("assignment", {
         id: {
-            type: DataTypes.STRING,
+            type: DataTypes.UUID,
             allowNull: false,
-            primaryKey: true
-        },
+            primaryKey: true,
+            defaultValue: () => uuidv4(), 
+          },
         userId: {
             type: DataTypes.STRING,
             allowNull: false,
