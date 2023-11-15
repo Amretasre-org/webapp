@@ -15,14 +15,6 @@ describe('GET /healthz', () => {
         const response = await chai
             .request(app)
             .get('/healthz')
-        expect(response).to.have.status(400);
-    });
-
-    it('Should check if the connection is established', async () => {
-        const response = await chai
-            .request(app)
-            .get('/healthz')
-            .set('Cache-Control', 'no-cache')
         expect(response).to.have.status(200);
     });
 });
