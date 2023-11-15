@@ -240,38 +240,34 @@ const deleteAssignment = async (req, res, db) => {
         let id = req.params.id;
         const userId = req.user.id;
 
-        if (req.body) {
+        if (Object.keys(req.body).length > 0) {
             logger.error('No request body needed for delete');
             return res.status(400).send({message: "No body needed for deletion"});
-        } 
-
-
-        let assignment = await db.assignments.findOne({ where: { id: id } });
-        if (!assignment) { 
-            logger.error('Assignment not found, delete assignment call');
-            return res.status(404).send({ message: 'Assignment not found' }); 
-        }
-        if (assignment.userId === userId) {
-            const result = await db.assignments.destroy({
-                where: {
-                    id: req.params.id
-                }
-            });
-
-            if (result === 0) {
-                logger.error('Assignment not found for the user, delete assignment call');
-                res.status(404).send("Not Found")
-            } else {
-                logger.info(`${req.params.id} Assignment deleted successully`);
-                res.status(204).send({ message: 'Assignment is deleted' });
-            }
         } else {
-            logger.error('Assignment not found for the user, delete assignment call');
-            return res.status(403).send({ 'message': 'Unauthorized User' });
+            let assignment = await db.assignments.findOne({ where: { id: id } });
+            if (!assignment) { 
+                logger.error('Assignment not found, delete assignment call');
+                return res.status(404).send({ message: 'Assignment not found' }); 
+            }
+            if (assignment.userId === userId) {
+                const result = await db.assignments.destroy({
+                    where: {
+                        id: req.params.id
+                    }
+                });
+    
+                if (result === 0) {
+                    logger.error('Assignment not found for the user, delete assignment call');
+                    res.status(404).send("Not Found")
+                } else {
+                    logger.info(`${req.params.id} Assignment deleted successully`);
+                    res.status(204).send({ message: 'Assignment is deleted' });
+                }
+            } else {
+                logger.error('Assignment not found for the user, delete assignment call');
+                return res.status(403).send({ 'message': 'Unauthorized User' });
+            }
         }
-
-
-
     } catch (error) {
         console.error('Error deleting assignment:', error);
         logger.error('Error deleting assignment');
