@@ -3,19 +3,15 @@ const router = express.Router();
 const db = require("../models/index");
 const StatsD = require('node-statsd');
 const statsdClient = new StatsD(({
-    host: 'localhost',  // Since it's on the same instance
-    port: 8125,          // The port where the CloudWatch Agent is listening
+    host: 'localhost',  
+    port: 8125,          
   }));
 const log4js = require('../log4js-config');
 
 const logger = log4js.getLogger();
 
 function isRequestHeader(req, res) {
-    if (req.headers['cache-control'] != "no-cache") {
-        console.warn("cache contol header is missing");
-        res.status(400).send();
-        return false;
-    } else if (JSON.stringify(req.query) != '{}') {
+    if (JSON.stringify(req.query) != '{}') {
         console.warn("Param is not needed");
         res.status(400).send();
         return false;
