@@ -1,18 +1,16 @@
-const Assignment = require('./assignmentModel');
-
 module.exports = (sequelize, DataTypes) => {
 
-    const User = sequelize.define("User", {
+    const Account = sequelize.define("account", {
         id: {
             type: DataTypes.STRING,
             allowNull: false,
             primaryKey: true
         },
-        firstName: {
+        first_name: {
             type: DataTypes.STRING,
             allowNull: false
         },
-        lastName: {
+        last_name: {
             type: DataTypes.STRING,
             allowNull: false
         },
@@ -25,17 +23,9 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         }
     }, {
-        timestamps: false, // Disable timestamps for this model
+        timestamps: false,
     });
 
-    // User.associate = (models) => {
-    //     User.hasMany(models.Assignment, {
-    //         foreignKey: 'userId', // The foreign key in the Assignments table
-    //         as: 'assignments', // Alias for the association
-    //         sourceKey: 'id'
-    //     });
-    // };
-
-    return User;
+    return Account;
 
 }

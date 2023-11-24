@@ -1,22 +1,47 @@
 const base64 = require("base-64");
 require('dotenv').config();
+const utils = require("../utils/bcrypting");
+
+// const sns = new AWS.SNS();
+const topicArn = process.env.TOPICARN;
+
 const StatsD = require('node-statsd');
 const statsdClient = new StatsD(({
-    host: 'localhost',  // Since it's on the same instance
-    port: 8125,          // The port where the CloudWatch Agent is listening
-  }));
-const log4js = require('../log4js-config');
+    host: 'localhost',
+    port: 8125,
+}));
 
+const log4js = require('../log4js-config');
 const logger = log4js.getLogger();
 
-function decodeUserId(req) {
-    const authHeader = req.headers['authorization'];
-    const credentials = base64.decode(authHeader.split(' ')[1]);
-    const [email, password] = credentials.split(':');
-    return email;
-}
+// function decodeUserId(req) {
+//     const authHeader = req.headers['authorization'];
+//     const credentials = base64.decode(authHeader.split(' ')[1]);
+//     const [email, password] = credentials.split(':');
+//     return email;
+// }
 
-const createAssignment = async (req, res, db) => {
+// async function publishToSNS(params) {
+//     return new Promise((resolve, reject) => {
+//         sns.publish(params, (err, data) => {
+//             if (err) {
+//                 console.error('Error publishing message to SNS:', err);
+//                 reject(err);
+//             } else {
+//                 console.log('Message published to SNS:', data);
+//                 logger.info('Message published to SNS:', data);
+//                 resolve(data);
+//             }
+//         });
+//     });
+// }
+
+// function containsURL(requestBody) {
+//     var urlPattern = /https?:\/\/\S+/;
+//     return urlPattern.test(requestBody);
+// }
+
+const assignmentCreation = async (req, res, db) => {
     try {
         console.log("Creating assignment");
         statsdClient.increment('post.assignment.create');
@@ -27,8 +52,7 @@ const createAssignment = async (req, res, db) => {
         }
 
         const { name, points, num_of_attempts, deadline } = req.body
-        console.log(name, points, num_of_attempts, deadline)
-        if (!req.body.name) {
+        if (!name) {
             logger.error('Bad Request in creating assignment due to missing name');
             logger.error(req.body);
             return res.status(400).send({ message: "Assignment name is required" });
@@ -43,14 +67,14 @@ const createAssignment = async (req, res, db) => {
             logger.error(req.body);
             return res.status(400).send({ message: "Number of attempts for assignment is required and should be less than 100" });
         }
-        if (!req.body.deadline && new Date(req.body.deadline) <= new Date()) {
+        if (!deadline && new Date(deadline) <= new Date()) {
             logger.error('Bad Request in creating assignment due to deadline');
             logger.error(req.body);
             return res.status(400).send({ message: "Deadline must be in the future" });
         }
-        const email = decodeUserId(req);
+        const email = utils.decodeUserEmail(req);
 
-        const user = await db.users.findOne({ where: { email } });
+        const user = await db.accounts.findOne({ where: { email } });
 
         if (!user) {
             logger.error('User not found when creating assignment');
@@ -75,9 +99,9 @@ const createAssignment = async (req, res, db) => {
     }
 }
 
-// const displayAllAssignments = async (req, res, db) => {
-//     const email = decodeUserId(req);
-//     const user = await db.users.findOne({ where: { email } });
+// const getAllAssignments = async (req, res, db) => {
+//     const email = utils.decodeUserEmail(req);
+//     const user = await db.accounts.findOne({ where: { email } });
 
 //     await db.assignments.findAll({ where: { userId: user.id } })
 //         .then((assignments) => {
@@ -101,14 +125,23 @@ const createAssignment = async (req, res, db) => {
 //         })
 // }
 
-const displayAllAssignments = async (req, res, db) => {
+const getAllAssignments = async (req, res, db) => {
     try {
         console.log("Display All Assignments");
         statsdClient.increment('get.assignment.displayAll');
         logger.info('Display All Assignments api call');
         let assignments = await db.assignments.findAll({});
-        logger.info('Successful get all api call');
-        res.status(200).send(assignments);
+        console.log(assignments.length, "Total number of Assignments");
+        if (assignments.length > 0) {
+            console.log("Successful get all api call")
+            logger.info('Successful get all api call');
+            res.status(200).send(assignments);
+        } else {
+            console.log("Successful get all api call, but no assignments")
+            logger.info('Successful get all api call, but no assignments');
+            return res.status(204).send();
+        }
+
     } catch (error) {
         console.error(error);
         logger.error('Error get all assignments');
@@ -117,8 +150,7 @@ const displayAllAssignments = async (req, res, db) => {
     }
 }
 
-
-const getAssignment = async (req, res, db) => {
+const displayAssignment = async (req, res, db) => {
     try {
         console.log("Display particular assignment");
         statsdClient.increment('get.assignment.display');
@@ -150,9 +182,7 @@ const getAssignment = async (req, res, db) => {
     }
 }
 
-
-
-const updateAssignment = async (req, res, db) => {
+const assignmentUpdate = async (req, res, db) => {
     console.log("Updating a particular assignment")
     statsdClient.increment('put.assignment.update');
     try {
@@ -171,7 +201,7 @@ const updateAssignment = async (req, res, db) => {
             return res.status(404).send({ message: 'Assignment not found' });
         }
         if (assignment.userId === userId) {
-            if (!req.body.name) {
+            if (!name) {
                 logger.error('Bad Request in updating assignment due to assignment name');
                 logger.error(req.body);
                 return res.status(400).send({ message: "Assignment name is required" });
@@ -186,7 +216,7 @@ const updateAssignment = async (req, res, db) => {
                 logger.error(req.body);
                 return res.status(400).send({ message: "Number of attempts for assignment is required and should be less than 100" });
             }
-            if (!req.body.deadline && new Date(req.body.deadline) <= new Date()) {
+            if (!deadline && deadline <= new Date()) {
                 logger.error('Bad Request in updating assignment due to deadline');
                 logger.error(req.body);
                 return res.status(400).send({ message: "Deadline must be in the future" });
@@ -214,6 +244,8 @@ const updateAssignment = async (req, res, db) => {
                 .catch((error) => {
                     logger.error("Error, in Update assignment method call");
                     logger.error(error);
+                    console.error("Error, in Update assignment method call");
+                    console.error(error);
                     res.status(500).json({
                         Status: "Error",
                         error
@@ -232,7 +264,7 @@ const updateAssignment = async (req, res, db) => {
 
 }
 
-const deleteAssignment = async (req, res, db) => {
+const assignmentDeletion = async (req, res, db) => {
     try {
         console.log("Deleting a particular assignment");
         statsdClient.increment('delete.assignment.delete');
@@ -242,12 +274,12 @@ const deleteAssignment = async (req, res, db) => {
 
         if (Object.keys(req.body).length > 0) {
             logger.error('No request body needed for delete');
-            return res.status(400).send({message: "No body needed for deletion"});
+            return res.status(400).send({ message: "No body needed for deletion" });
         } else {
             let assignment = await db.assignments.findOne({ where: { id: id } });
-            if (!assignment) { 
+            if (!assignment) {
                 logger.error('Assignment not found, delete assignment call');
-                return res.status(404).send({ message: 'Assignment not found' }); 
+                return res.status(404).send({ message: 'Assignment not found' });
             }
             if (assignment.userId === userId) {
                 const result = await db.assignments.destroy({
@@ -255,7 +287,7 @@ const deleteAssignment = async (req, res, db) => {
                         id: req.params.id
                     }
                 });
-    
+
                 if (result === 0) {
                     logger.error('Assignment not found for the user, delete assignment call');
                     res.status(404).send("Not Found")
@@ -285,13 +317,133 @@ const patchAssignmentCall = (req, res) => {
     })
 }
 
+const submissionCreation = async (req, res, db) => {
+    try {
+        statsdClient.increment('post.assignment.submission');
+        logger.info('Creating assignment api call');
+        console.log("Submission create API");
+
+        const assignment_id = req.params.id;
+
+        if (Object.entries(req.body).length === 0 || Object.keys(req.body).length === 0 || JSON.stringify(req.body) === '{}') {
+            logger.error('Bad Request in create assignment');
+            console.log('Bad Request in create assignment')
+            return res.status(400).send({ message: 'Bad Request' });
+        }
+
+        const { submission_url } = req.body;
+
+        if (!utils.containsURL(submission_url)) {
+            logger.error("Submission request should contain a URL");
+            console.error("Submission request should contain a URL");
+            return res.status(400).send({ message: 'Request should contain URL' });
+        } else {
+            const email = utils.decodeUserEmail(req);
+
+            const user = await db.accounts.findOne({ where: { email } });
+
+            if (!user) {
+                logger.error('User not found when creating assignment');
+                return res.status(404).send('User not found');
+            } else {
+                const userId = req.user.id;
+                let assignment = await db.assignments.findOne({ where: { id: assignment_id } })
+                if (!assignment) {
+                    logger.error('Assignment not found, Bad request in get assignment');
+                    return res.status(404).send({ message: 'Assignment not found' });
+                }
+                if (assignment.userId === userId) {
+                    const currentDate = new Date();
+                    let submission = await db.submissions.findOne({ where: { assignment_id: assignment_id } });
+
+                    const params = {
+                        submissionUrl: submission_url,
+                        userEmail: email,
+                        TopicArn: topicArn,
+                    };
+
+                    if (!submission) {
+                        if (assignment.deadline >= currentDate) {
+                            // const sns = await utils.publishToSNS(params);
+                            const submission_created = await db.submissions.create({
+                                assignment_id: assignment_id,
+                                user_id: userId,
+                                submission_url: submission_url,
+                                attempt_no: 1
+                            });
+                            logger.info(`Submission ${submission_created.id} created successfully and published in SNS`);
+                            console.log(`Submission ${submission_created.id} created successfully and published in SNS`)
+                            res.status(201).send(submission_created)
+                        } else {
+                            logger.error("Submission cannot be done after the deadline");
+                            console.error("Submission cannot be done after the deadline")
+                            return res.status(400).json({
+                                message: "Deadline has passed",
+                            })
+                        }
+                    } else {
+                        let currentAttempt = submission.attempt_no;
+                        // console.log(assignment.num_of_attempts, "num_of_attempts")
+                        // console.log(assignment.deadline >= currentDate, "assignment.deadline >= currentDate");
+                        // console.log(currentAttempt < assignment.num_of_attempts, "currentAttempt <= assignment.num_of_attempts")
+                        if (assignment.deadline >= currentDate && currentAttempt < assignment.num_of_attempts) {
+                            // const sns = await utils.publishToSNS(params);
+                            const updated_submission = await db.submissions.update({
+                                submission_url: submission_url,
+                                attempt_no: currentAttempt + 1,
+                                submission_updated: currentDate
+                            }, {
+                                where: {
+                                    id: submission.id,
+                                    assignment_id: assignment.id,
+                                    user_id: userId
+                                }
+                            });
+                            logger.info(`Submission ${submission.id} updated successfully and published in SNS`);
+                            console.log(`Submission ${submission.id} update successfully and published in SNS`)
+                            res.status(201).send(submission)
+                        } else if (assignment.deadline < currentDate) {
+                            logger.error("Submission cannot be done after the deadline");
+                            console.error("Submission cannot be done after the deadline")
+                            return res.status(400).json({
+                                message: "Deadline has passed",
+                            })
+                        } else if (currentAttempt >= assignment.num_of_attempts) {
+                            logger.error("Number of attempts for submission has exceeded");
+                            console.error("Number of attempts for submission has exceeded")
+                            return res.status(400).json({
+                                message: "Number of attempts for submission has exceeded",
+                            })
+                        } else {
+                            logger.error("Error in submission");
+                            console.error("Error in submission")
+                            return res.status(500).send("Internal Server Error");
+                        }
+                    }
+                } else {
+                    logger.error('Forbidden user in get an assignment method call');
+                    res.status(403).send({ message: "Forbidden" });
+                }
+            }
+        }
+
+    } catch (error) {
+        logger.error('Error creating submission');
+        console.error('Error creating submission');
+        logger.error(error);
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
 
 module.exports = {
-    createAssignment,
-    displayAllAssignments,
-    getAssignment,
-    updateAssignment,
-    deleteAssignment,
-    patchAssignmentCall
+    assignmentCreation,
+    getAllAssignments,
+    displayAssignment,
+    assignmentUpdate,
+    assignmentDeletion,
+    patchAssignmentCall,
+    submissionCreation
 };
 

@@ -131,3 +131,5 @@ dist
 
 config/
 *.merge_message
+
+.DS_Store

@@ -1,13 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const db = require("./models");
-// const userController = require("./controllers/userController")
 require('dotenv').config();
 
 const healthRoutes = require("./routes/healthRoutes");
 const assignmentRoutes = require("./routes/assignmentRoutes");
-
-const authorization = require("./middleware/authorization");
 
 global.__basedir = __dirname;
 const app = express();
