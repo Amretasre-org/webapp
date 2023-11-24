@@ -31,11 +31,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: DataTypes.NOW
         },
-        attempt_no: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: false,
-            defaultValue: 0
-        },
     },
         { tableName: 'submission', timestamps: false }
     );
