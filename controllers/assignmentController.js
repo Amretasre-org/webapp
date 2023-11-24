@@ -371,14 +371,19 @@ const submissionCreation = async (req, res, db) => {
                             submission_url: submission_url,
                         });
                         console.log(submission_created.id);
+
                         const params = {
-                            submissionId: submission_created.id,
-                            submissionUrl: submission_url,
-                            assignmentId: assignment_id,
-                            userEmail: email,
+                            Message: JSON.stringify({
+                            //   messageType: 'Submission Added',
+                              submissionId: submission_created.id,
+                              submissionUrl: submission_url,
+                              assignmentId: assignment_id,
+                              userEmail: email,
+                            }),
                             TopicArn: topicArn,
-                        };
-                        // const sns = await utils.publishToSNS(params);
+                          };
+
+                        const sns = await utils.publishToSNS(params);
                         logger.info(`Submission ${submission_created.id} created successfully and published in SNS`);
                         console.log(`Submission ${submission_created.id} created successfully and published in SNS`)
                         res.status(201).send(submission_created)
