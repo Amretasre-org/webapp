@@ -354,72 +354,53 @@ const submissionCreation = async (req, res, db) => {
                 }
                 if (assignment.userId === userId) {
                     const currentDate = new Date();
-                    let submission = await db.submissions.findOne({ where: { assignment_id: assignment_id } });
-
-                    const params = {
-                        submissionUrl: submission_url,
-                        userEmail: email,
-                        TopicArn: topicArn,
-                    };
-
-                    if (!submission) {
-                        if (assignment.deadline >= currentDate) {
-                            // const sns = await utils.publishToSNS(params);
-                            const submission_created = await db.submissions.create({
-                                assignment_id: assignment_id,
-                                user_id: userId,
-                                submission_url: submission_url,
-                                attempt_no: 1
-                            });
-                            logger.info(`Submission ${submission_created.id} created successfully and published in SNS`);
-                            console.log(`Submission ${submission_created.id} created successfully and published in SNS`)
-                            res.status(201).send(submission_created)
-                        } else {
-                            logger.error("Submission cannot be done after the deadline");
-                            console.error("Submission cannot be done after the deadline")
-                            return res.status(400).json({
-                                message: "Deadline has passed",
-                            })
+                    
+                    let submissionCount = await db.submissions.count({
+                        where: {
+                            assignment_id,
                         }
-                    } else {
-                        let currentAttempt = submission.attempt_no;
-                        // console.log(assignment.num_of_attempts, "num_of_attempts")
-                        // console.log(assignment.deadline >= currentDate, "assignment.deadline >= currentDate");
-                        // console.log(currentAttempt < assignment.num_of_attempts, "currentAttempt <= assignment.num_of_attempts")
-                        if (assignment.deadline >= currentDate && currentAttempt < assignment.num_of_attempts) {
-                            // const sns = await utils.publishToSNS(params);
-                            const updated_submission = await db.submissions.update({
-                                submission_url: submission_url,
-                                attempt_no: currentAttempt + 1,
-                                submission_updated: currentDate
-                            }, {
-                                where: {
-                                    id: submission.id,
-                                    assignment_id: assignment.id,
-                                    user_id: userId
-                                }
-                            });
-                            logger.info(`Submission ${submission.id} updated successfully and published in SNS`);
-                            console.log(`Submission ${submission.id} update successfully and published in SNS`)
-                            res.status(201).send(submission)
-                        } else if (assignment.deadline < currentDate) {
-                            logger.error("Submission cannot be done after the deadline");
-                            console.error("Submission cannot be done after the deadline")
-                            return res.status(400).json({
-                                message: "Deadline has passed",
-                            })
-                        } else if (currentAttempt >= assignment.num_of_attempts) {
-                            logger.error("Number of attempts for submission has exceeded");
-                            console.error("Number of attempts for submission has exceeded")
-                            return res.status(400).json({
-                                message: "Number of attempts for submission has exceeded",
-                            })
-                        } else {
-                            logger.error("Error in submission");
-                            console.error("Error in submission")
-                            return res.status(500).send("Internal Server Error");
-                        }
+                    });
+                    console.log(submissionCount, "Number of submissions done by user");
+                    // console.log(assignment.num_of_attempts, "num_of_attempts")
+                    // console.log(assignment.deadline >= currentDate, "assignment.deadline >= currentDate");
+                    // console.log(currentAttempt < assignment.num_of_attempts, "currentAttempt <= assignment.num_of_attempts")
+                    if (assignment.deadline >= currentDate && submissionCount < assignment.num_of_attempts) {
+                        const submission_created = await db.submissions.create({
+                            assignment_id: assignment_id,
+                            user_id: userId,
+                            submission_url: submission_url,
+                        });
+                        console.log(submission_created.id);
+                        const params = {
+                            submissionId: submission_created.id,
+                            submissionUrl: submission_url,
+                            assignmentId: assignment_id,
+                            userEmail: email,
+                            TopicArn: topicArn,
+                        };
+                        // const sns = await utils.publishToSNS(params);
+                        logger.info(`Submission ${submission_created.id} created successfully and published in SNS`);
+                        console.log(`Submission ${submission_created.id} created successfully and published in SNS`)
+                        res.status(201).send(submission_created)
+                    } else if (assignment.deadline < currentDate) {
+                        logger.error("Submission cannot be done after the deadline");
+                        console.error("Submission cannot be done after the deadline")
+                        return res.status(400).json({
+                            message: "Deadline has passed",
+                        })
+                    } else if (submissionCount >= assignment.num_of_attempts) {
+                        logger.error("Number of attempts for submission has exceeded");
+                        console.error("Number of attempts for submission has exceeded")
+                        return res.status(400).json({
+                            message: "Number of attempts for submission has exceeded",
+                        })
                     }
+                    else {
+                        logger.error("Error in submission");
+                        console.error("Error in submission")
+                        return res.status(500).send("Internal Server Error");
+                    }
+
                 } else {
                     logger.error('Forbidden user in get an assignment method call');
                     res.status(403).send({ message: "Forbidden" });
