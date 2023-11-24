@@ -1,6 +1,9 @@
 require('dotenv').config();
+const log4js = require('../log4js-config');
+const logger = log4js.getLogger();
 
-console.log("Host: ", process.env.HOST)
+console.log("Host for DB: ", process.env.HOST)
+logger.info("Host for DB: ", process.env.HOST)
 
 module.exports = {
     HOST: process.env.HOST,
