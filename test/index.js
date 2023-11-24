@@ -11,7 +11,7 @@ chai.use(chaiHttp);
 const credentials = Buffer.from('john.doe@example.com:abc123').toString('base64');
 
 describe('GET /healthz', () => {
-    it('Should check status 400 when there is no headers', async () => {
+    it('Should check status 200 for GET call', async () => {
         const response = await chai
             .request(app)
             .get('/healthz')
