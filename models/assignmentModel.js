@@ -1,4 +1,3 @@
-const User = require("./userModel");
 const { v4: uuidv4 } = require('uuid');
 
 module.exports = (sequelize, DataTypes) => {
@@ -8,8 +7,8 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.UUID,
             allowNull: false,
             primaryKey: true,
-            defaultValue: () => uuidv4(), 
-          },
+            defaultValue: () => uuidv4(),
+        },
         userId: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -27,18 +26,22 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         deadline: {
-            type: DataTypes.STRING,
+            type: DataTypes.DATE,
             allowNull: false
+        },
+        assignment_created: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue:  DataTypes.NOW
+        },
+        assignment_updated: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue:  DataTypes.NOW
         }
-    });
-
-    // Assignment.associate = (models) => {
-    //     Assignment.belongsTo(models.User, {
-    //         foreignKey: 'userId', 
-    //         as: 'user', 
-    //         targetKey: 'id'
-    //     });
-    // };
+    },
+        { tableName: 'assignments', timestamps: false }
+    );
 
     return Assignment;
 

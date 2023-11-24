@@ -1,7 +1,6 @@
 require('dotenv').config();
 
-console.log(process.env.HOST)
-console.log(process.env)
+console.log("Host: ", process.env.HOST)
 
 module.exports = {
     HOST: process.env.HOST,

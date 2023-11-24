@@ -1,3 +1,4 @@
+const utils = require("../utils/bcrypting")
 const express = require("express");
 const router = express.Router();
 const db = require("../models/index");
@@ -7,36 +8,37 @@ const statsdClient = new StatsD(({
     port: 8125,          
   }));
 const log4js = require('../log4js-config');
-
 const logger = log4js.getLogger();
 
-function isRequestHeader(req, res) {
-    if (JSON.stringify(req.query) != '{}') {
-        console.warn("Param is not needed");
-        res.status(400).send();
-        return false;
-    } else if (JSON.stringify(req.body) != '{}') {
-        console.warn("Payload is not needed");
-        res.status(400).send();
-        return false;
-    }
-    else {
-        return true;
-    };
-}
+// function isRequestHeader(req, res) {
+//     if (JSON.stringify(req.query) != '{}') {
+//         console.error("Param is not needed for Health route");
+//         logger.error("Param is not needed for Health route");
+//         res.status(400).send();
+//         return false;
+//     } else if (JSON.stringify(req.body) != '{}') {
+//         console.error("Payload is not needed for Health route");
+//         logger.error("Payload is not needed for Health route");
+//         res.status(400).send();
+//         return false;
+//     }
+//     else {
+//         return true;
+//     };
+// }
 
-function checkGetCall(method = "post", res) {
-    console.log(`${method} method Not allowed`);
-    logger.info(`${method} method Not allowed in health route`);
-    statsdClient.increment(`${method}.healthz`);
-    res.status(405).send();
-}
+// function otherMethodCheck(method = "post", res) {
+//     console.log(`${method} method Not allowed`);
+//     logger.info(`${method} method Not allowed in health route`);
+//     statsdClient.increment(`${method}.healthz`);
+//     res.status(405).send();
+// }
 
 
 router.get("/healthz", async (req, res) => {
     try {
         statsdClient.increment('get.healthz');
-        if (isRequestHeader(req, res)) {
+        if (utils.isRequestHeader(req, res)) {
             console.log("Healthy connection");
             logger.info("Healthy connection established");
             await db.sequelize.authenticate();
@@ -53,9 +55,9 @@ router.get("/healthz", async (req, res) => {
         res.status(503).send();
     }
 });
-router.post("/healthz", (req, res) => checkGetCall("post", res));
-router.put("/healthz", (req, res) => checkGetCall("put", res));
-router.delete("/healthz", (req, res) => checkGetCall("delete", res));
-router.patch("/healthz", (req, res) => checkGetCall("patch", res));
+router.post("/healthz", (req, res) => utils.otherMethodCheck("post", res));
+router.put("/healthz", (req, res) => utils.otherMethodCheck("put", res));
+router.delete("/healthz", (req, res) => utils.otherMethodCheck("delete", res));
+router.patch("/healthz", (req, res) => utils.otherMethodCheck("patch", res));
 
 module.exports = router;

@@ -2,7 +2,7 @@ const dbConfig = require("../config/config.js");
 
 const { Sequelize, DataTypes }  = require("sequelize");
 
-const userController = require("../controllers/userController");
+const acctController = require("../controllers/accountController");
 
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
@@ -22,14 +22,27 @@ const db = {};
 db.Sequelize = Sequelize; // constructor
 db.sequelize = sequelize; // the instance of Sequelize
 
-db.users = require("./userModel")(sequelize, DataTypes);
+db.accounts = require("./accountModel")(sequelize, DataTypes);
 db.assignments = require("./assignmentModel")(sequelize, DataTypes);
+db.submissions = require("./submissionModel")(sequelize, DataTypes);
 
-db.assignments.belongsTo(db.users, {
+db.assignments.belongsTo(db.accounts, {
   foreignKey: 'userId',
-  as:'user',
+  as:'account',
   targetKey: 'id'
 })
+
+db.submissions.belongsTo(db.assignments, {
+  foreignKey: 'assignment_id',
+  as: 'assignment',
+  targetKey: 'id'
+});
+
+db.submissions.belongsTo(db.accounts, {
+  foreignKey: 'user_id',
+  as: 'account',
+  targetKey: 'id'
+});
 
 db.sequelize.authenticate()
 .then(() => {
@@ -38,7 +51,7 @@ db.sequelize.authenticate()
 })
 .then(async () => {
   console.log("Adding users to DB");
-  await userController.addUser(db);
+  await acctController.userCreation(db);
 })
 .catch((err) => {
   console.log("Error", err);
