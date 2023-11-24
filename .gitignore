@@ -129,7 +129,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-config/
+# config/
 *.merge_message
 
 .DS_Store
