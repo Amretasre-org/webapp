@@ -69,3 +69,9 @@ sudo chown systemd-user:csye6225 /var/log/healthcheck.service/out.log
 sudo chmod 644 /var/log/healthcheck.service/out.log
 ```
 
+### Commands to get the access key and secret access key
+```
+aws configure get aws_access_key_id --profile <your-profile-name>
+aws configure get aws_secret_access_key --profile <your-profile-name>
+```
+
