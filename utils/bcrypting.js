@@ -7,7 +7,7 @@ const statsdClient = new StatsD(({
     host: 'localhost',  
     port: 8125,          
   }));
-const AWS = require("../config/aws-config");
+const AWS = require('aws-sdk');
 const sns = new AWS.SNS();
 
 function bcryptingPassword(password) {
