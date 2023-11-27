@@ -282,19 +282,28 @@ const assignmentDeletion = async (req, res, db) => {
                 return res.status(404).send({ message: 'Assignment not found' });
             }
             if (assignment.userId === userId) {
-                const result = await db.assignments.destroy({
-                    where: {
-                        id: req.params.id
-                    }
-                });
+                const submission = await db.submissions.findAll({ where: {assignmentId: assignment.id, userId: userId}});
 
-                if (result === 0) {
-                    logger.error('Assignment not found for the user, delete assignment call');
-                    res.status(404).send("Not Found")
+                if (submission) {
+                    console.error("Submission exists, cannot delete assignment");
+                    logger.error("Submission exists, cannot delete assignment");
+                    return res.status(400).send({ message: "Cannot delete assignment with submissions"});
                 } else {
-                    logger.info(`${req.params.id} Assignment deleted successully`);
-                    res.status(204).send({ message: 'Assignment is deleted' });
+                    const result = await db.assignments.destroy({
+                        where: {
+                            id: req.params.id
+                        }
+                    });
+    
+                    if (result === 0) {
+                        logger.error('Assignment not found for the user, delete assignment call');
+                        res.status(404).send("Not Found")
+                    } else {
+                        logger.info(`${req.params.id} Assignment deleted successully`);
+                        res.status(204).send({ message: 'Assignment is deleted' });
+                    }
                 }
+                
             } else {
                 logger.error('Assignment not found for the user, delete assignment call');
                 return res.status(403).send({ 'message': 'Unauthorized User' });
@@ -382,6 +391,9 @@ const submissionCreation = async (req, res, db) => {
                             }),
                             TopicArn: topicArn,
                           };
+
+                        console.log("Publish Params: ", params);
+                        logger.info("Publish Params: ", params);
 
                         const sns = await utils.publishToSNS(params);
                         logger.info(`Submission ${submission_created.id} created successfully and published in SNS`);
