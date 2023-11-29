@@ -6,9 +6,9 @@ console.log("Host for DB: ", process.env.HOST)
 logger.info("Host for DB: ", process.env.HOST)
 
 module.exports = {
-    HOST: process.env.HOST,
+    HOST: process.env.HOST || "localhost",
     USER: process.env.MYSQLUSER || "root",
-    PASSWORD: process.env.PASSWORD,
+    PASSWORD: process.env.PASSWORD || "amre1999",
     DB: "Assignments_Demo_DB",
     dialect: "mysql",
     pool: {

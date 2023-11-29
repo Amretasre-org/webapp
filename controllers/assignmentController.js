@@ -282,19 +282,19 @@ const assignmentDeletion = async (req, res, db) => {
                 return res.status(404).send({ message: 'Assignment not found' });
             }
             if (assignment.userId === userId) {
-                const submission = await db.submissions.findAll({ where: {assignmentId: assignment.id, userId: userId}});
+                const submission = await db.submissions.findAll({ where: { assignmentId: assignment.id, userId: userId } });
 
                 if (submission) {
                     console.error("Submission exists, cannot delete assignment");
                     logger.error("Submission exists, cannot delete assignment");
-                    return res.status(400).send({ message: "Cannot delete assignment with submissions"});
+                    return res.status(400).send({ message: "Cannot delete assignment with submissions" });
                 } else {
                     const result = await db.assignments.destroy({
                         where: {
                             id: req.params.id
                         }
                     });
-    
+
                     if (result === 0) {
                         logger.error('Assignment not found for the user, delete assignment call');
                         res.status(404).send("Not Found")
@@ -303,7 +303,7 @@ const assignmentDeletion = async (req, res, db) => {
                         res.status(204).send({ message: 'Assignment is deleted' });
                     }
                 }
-                
+
             } else {
                 logger.error('Assignment not found for the user, delete assignment call');
                 return res.status(403).send({ 'message': 'Unauthorized User' });
@@ -346,6 +346,10 @@ const submissionCreation = async (req, res, db) => {
             logger.error("Submission request should contain a URL");
             console.error("Submission request should contain a URL");
             return res.status(400).send({ message: 'Request should contain URL' });
+        } else if (!utils.isZipFile(submission_url)) {
+            logger.error("URL should point to a ZIP file");
+            console.error("URL should point to a ZIP file");
+            return res.status(400).send({ message: 'URL should point to a ZIP file' });
         } else {
             const email = utils.decodeUserEmail(req);
 
@@ -363,7 +367,7 @@ const submissionCreation = async (req, res, db) => {
                 }
                 if (assignment.userId === userId) {
                     const currentDate = new Date();
-                    
+
                     let submissionCount = await db.submissions.count({
                         where: {
                             assignment_id,
@@ -383,15 +387,15 @@ const submissionCreation = async (req, res, db) => {
 
                         const params = {
                             Message: JSON.stringify({
-                            //   messageType: 'Submission Added',
-                              submissionId: submission_created.id,
-                              submissionUrl: submission_url,
-                              assignmentId: assignment_id,
-                              assignmentName: assignment.name,
-                              userEmail: email,
+                                //   messageType: 'Submission Added',
+                                submissionId: submission_created.id,
+                                submissionUrl: submission_url,
+                                assignmentId: assignment_id,
+                                assignmentName: assignment.name,
+                                userEmail: email,
                             }),
                             TopicArn: topicArn,
-                          };
+                        };
 
                         console.log("Publish Params: ", params);
                         logger.info("Publish Params: ", params);
@@ -434,6 +438,8 @@ const submissionCreation = async (req, res, db) => {
         res.status(500).send('Internal Server Error');
     }
 }
+
+
 
 
 module.exports = {
