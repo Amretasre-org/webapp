@@ -387,6 +387,7 @@ const submissionCreation = async (req, res, db) => {
                               submissionId: submission_created.id,
                               submissionUrl: submission_url,
                               assignmentId: assignment_id,
+                              assignmentName: assignment.name,
                               userEmail: email,
                             }),
                             TopicArn: topicArn,
