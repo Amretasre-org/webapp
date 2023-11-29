@@ -9,6 +9,7 @@ const statsdClient = new StatsD(({
   }));
 const AWS = require('aws-sdk');
 const sns = new AWS.SNS();
+const path = require('path');
 
 function bcryptingPassword(password) {
     try {
@@ -76,11 +77,22 @@ function isRequestHeader(req, res) {
     };
 }
 
+function getFileExtension(url) {
+    return path.extname(new URL(url).pathname);
+}
+
+function isZipFile(url) {
+    const allowedExtensions = ['.zip', '.tar.gz'];
+    const fileExtension = getFileExtension(url);
+    return allowedExtensions.includes(fileExtension);
+}
+
 module.exports = {
     bcryptingPassword,
     decodeUserEmail,
     publishToSNS,
     containsURL,
     otherMethodCheck,
-    isRequestHeader
+    isRequestHeader,
+    isZipFile
 }
