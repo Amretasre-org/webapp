@@ -255,9 +255,14 @@ const assignmentDeletion = async (req, res, db) => {
                 return res.status(404).send({ message: 'Assignment not found' });
             }
             if (assignment.userId === userId) {
-                const submission = await db.submissions.findAll({ where: { assignment_id: assignment.id, user_id: userId } });
+                let submissionCount = await db.submissions.count({
+                    where: {
+                        assignment_id:assignment.id,
+                    }
+                });
 
-                if (submission) {
+                console.log("Submissions count: ", submissionCount);
+                if (submissionCount > 0) {
                     console.error("Submission exists, cannot delete assignment");
                     logger.error("Submission exists, cannot delete assignment");
                     return res.status(400).send({ message: "Cannot delete assignment with submissions" });
