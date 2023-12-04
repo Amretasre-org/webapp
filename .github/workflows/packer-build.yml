@@ -129,47 +129,59 @@ jobs:
         aws autoscaling start-instance-refresh --auto-scaling-group-name $asg_name --strategy Rolling
         
       
-     - name: Set up AWS CLI for dev
-       uses: aws-actions/configure-aws-credentials@v1
-       with:
-         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
-         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
-         aws-region: ${{ secrets.region }}
+    - name: Set up AWS CLI for dev
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+        aws-region: ${{ secrets.region }}
 
-     - name: Get AMI ID
-       id: get_ami_id
-       run: |
-         ami_id=$(aws ec2 describe-images --filters "Name=tag:Name,Values=csye6225_$(date -u +\%Y_\%m_\%d_\%H_\%M_\%S)" --query 'Images[0].ImageId' --output text)
-         echo "AMI_ID=$ami_id" > ami_id.txt
+    - name: Get AMI ID
+      id: get_ami_id
+      run: |
+        ami_id=$(aws ec2 describe-images --filters "Name=tag:Name,Values=csye6225_$(date -u +\%Y_\%m_\%d_\%H_\%M_\%S)" --query 'Images[0].ImageId' --output text)
+        echo "AMI_ID=$ami_id" > ami_id.txt
 
-     - name: Fetch latest Launch Template ID
-       id: fetch_launch_template
-       run: |
-         launch_template_id=$(aws ec2 describe-launch-templates --query 'LaunchTemplates[0].LaunchTemplateId' --output text)
-         echo "LAUNCH_TEMPLATE_ID=$launch_template_id" > launch_template_id.txt
+    - name: Fetch latest Auto Scaling Group name
+      id: fetch_asg_name
+      run: |
+        asg_name=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[0].AutoScalingGroupName' --output text)
+        echo "ASG_NAME=$asg_name" > asg_name.txt
 
-     - name: Fetch latest Auto Scaling Group name
-       id: fetch_asg_name
-       run: |
-         asg_name=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[0].AutoScalingGroupName' --output text)
-         echo "ASG_NAME=$asg_name" > asg_name.txt
+    - name: Update Launch Template with new AMI ID
+      run: |
+        launch_template_id=$(aws ec2 describe-launch-templates --launch-template-name YOUR_TEMPLATE_NAME --query 'LaunchTemplates[0].LaunchTemplateId' --output json)
 
-     - name: Update Launch Template with new AMI ID
-       run: |
-         launch_template_id=$(cat launch_template_id.txt)
-         ami_id=$(cat ami_id.txt)
-         aws ec2 create-launch-template-version --launch-template-name $launch_template_id --source-version $ami_id
+        if [ -z "$launch_template_id" ]; then
+          echo "Error: Launch template ID not found or empty. Exiting."
+          exit 1
+        fi
 
-     - name: Update Auto Scaling Group with new Launch Template
-       run: |
-         asg_name=$(cat asg_name.txt)
-         launch_template_id=$(cat launch_template_id.txt)
-         aws autoscaling update-auto-scaling-group --auto-scaling-group-name $asg_name --launch-template LaunchTemplateId=$launch_template_id,Version=$launch_template_version
+        ami_id=$(cat ami_id.txt)
 
-     - name: Trigger instance refresh
-       run: |
-         asg_name=$(cat asg_name.txt)
-         aws autoscaling start-instance-refresh --auto-scaling-group-name $asg_name --strategy Rolling
+        # Fetch the launch template data
+        launch_template_data=$(aws ec2 describe-launch-templates --launch-template-name $launch_template_id --query 'LaunchTemplates[0].LaunchTemplateData' --output json)
+
+        # Update the AMI ID in the launch template data
+        modified_launch_template_data=$(echo $launch_template_data | jq --arg ami_id $ami_id '.ImageId = $ami_id')
+
+        # Create a new version of the launch template
+        aws ec2 create-launch-template-version \
+          --launch-template-name $launch_template_id \
+          --source-version $ami_id \
+          --launch-template-data "$modified_launch_template_data"
+
+
+    - name: Update Auto Scaling Group with new Launch Template
+      run: |
+        asg_name=$(cat asg_name.txt)
+        launch_template_id=$(cat launch_template_id.txt)
+        aws autoscaling update-auto-scaling-group --auto-scaling-group-name $asg_name --launch-template LaunchTemplateId=$launch_template_id,Version=$launch_template_version
+
+    - name: Trigger instance refresh
+      run: |
+        asg_name=$(cat asg_name.txt)
+        aws autoscaling start-instance-refresh --auto-scaling-group-name $asg_name --strategy Rolling
 
 
   
