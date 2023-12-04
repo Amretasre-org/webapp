@@ -114,7 +114,11 @@ jobs:
 
         echo "Launch Template ID: $launch_template_id"
 
-        launch_template_data=$(aws ec2 describe-launch-templates --launch-template-ids $launch_template_id --query 'LaunchTemplates[0].LaunchTemplateData' --output json)
+        launch_template_id=$(echo "$launch_template_id" | tr -d '"')
+
+        echo "Launch Template ID: $launch_template_id"
+
+        launch_template_data=$(aws ec2 describe-launch-templates --launch-template-ids "$launch_template_id" --query 'LaunchTemplates[0].LaunchTemplateData' --output json )
 
         modified_launch_template_data=$(echo $launch_template_data | jq --arg ami_id $ami_id '.ImageId = $ami_id')
 
