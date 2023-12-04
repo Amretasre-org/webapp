@@ -79,9 +79,17 @@ jobs:
         run: packer init packer/aws-ami.pkr.hcl
 
       - name: Packer Build
-        id: get_ami_id
+        id: packer_build
         run: |
-          packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl
+          packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | tee packer_output.log
+
+      - name: Packer Build and create ami_id.txt
+        id: packer_build
+        run: |
+          packer build -on-error=cleanup -color=false -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | tee packer_output.log
+          ami_id=$(grep 'AMIs were created' packer_output.log | awk '{sub(/^\*\*\*/, "", $NF); print $NF}')
+          echo "AMI_ID is: $ami_id"
+          echo "AMI_ID=$ami_id" > ami_id.txt
 
       - name: Set up AWS CLI for dev
         uses: aws-actions/configure-aws-credentials@v1
@@ -89,6 +97,16 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
           aws-region: ${{ secrets.AMI_AWS_REGION }}
+
+      - name: Update Launch Template with new AMI ID
+        run: |
+          cat ami_id.txt | while read file; do
+            aws ec2 create-launch-template-version \
+              --launch-template-name ${{ secrets.LAUNCH_TEMPLATE_NAME }} \
+              --version-description latest \
+              --source-version 1 \
+              --launch-template-data "ImageId=$file"
+          done
 
       - name: Update Launch Template with new AMI ID
         run: |
@@ -119,7 +137,7 @@ jobs:
           echo "AMI ID: $ami_id"
 
           aws ec2 create-launch-template-version \
-            --launch-template-id "$launch_template_id" \
+            --launch-template-name "${{ secrets.LAUNCH_TEMPLATE_NAME }}" \
             --source-version 1 \
             --launch-template-data "{\"ImageId\":\"$ami_id\"}"
 
