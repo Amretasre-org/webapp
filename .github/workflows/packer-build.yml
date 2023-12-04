@@ -78,11 +78,6 @@ jobs:
       - name: Packer Init
         run: packer init packer/aws-ami.pkr.hcl
 
-      - name: Packer Build
-        id: packer_build
-        run: |
-          packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | tee packer_output.log
-
       - name: Packer Build and create ami_id.txt
         id: packer_build
         run: |
