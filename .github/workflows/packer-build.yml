@@ -1,10 +1,6 @@
 name: Build AMI and Include Artifact
 
-on:
-  push:
-    branches:
-      - main
-      - test-pr
+on: [ push ]
 
 env:
   HOST: "localhost"
@@ -99,12 +95,6 @@ jobs:
         ami_id=$(aws ec2 describe-images --filters "Name=tag:Name,Values=csye6225_$(date -u +\%Y_\%m_\%d_\%H_\%M_\%S)" --query 'Images[0].ImageId' --output text)
         echo "AMI_ID=$ami_id" > ami_id.txt
 
-    - name: Fetch latest Launch Template ID
-      id: fetch_launch_template
-      run: |
-        launch_template_id=$(aws ec2 describe-launch-templates --query 'LaunchTemplates[0].LaunchTemplateId' --output text)
-        echo "LAUNCH_TEMPLATE_ID=$launch_template_id" > launch_template_id.txt
-
     - name: Fetch latest Auto Scaling Group name
       id: fetch_asg_name
       run: |
@@ -113,7 +103,9 @@ jobs:
 
     - name: Update Launch Template with new AMI ID
       run: |
-        launch_template_id=$(cat launch_template_id.txt)
+        # Fetch the launch template ID
+        launch_template_id=$(aws ec2 describe-launch-templates --launch-template-name YOUR_TEMPLATE_NAME --query 'LaunchTemplates[0].LaunchTemplateId' --output json)
+
         ami_id=$(cat ami_id.txt)
 
         launch_template_data=$(aws ec2 describe-launch-templates --launch-template-name $launch_template_id --query 'LaunchTemplates[0].LaunchTemplateData' --output json)
@@ -124,7 +116,6 @@ jobs:
           --launch-template-name $launch_template_id \
           --source-version $ami_id \
           --launch-template-data "$modified_launch_template_data"
-
 
     - name: Update Auto Scaling Group with new Launch Template
       run: |
