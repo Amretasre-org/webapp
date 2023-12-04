@@ -84,7 +84,7 @@ jobs:
           packer build -on-error=cleanup -color=false -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | tee packer_output.log
           ami_id=$(awk '/--> amazon-ebs.csye6225_ami: AMIs were created:/{getline; print $NF}' packer_output.log)
           echo "AMI_ID is: $ami_id"
-          echo "AMI_ID=$ami_id" > ami_id.txt
+          echo $ami_id > ami_id.txt
 
       - name: Set up AWS CLI for dev
         uses: aws-actions/configure-aws-credentials@v1
@@ -96,7 +96,6 @@ jobs:
       - name: Update Launch Template with new AMI ID
         run: |
           cat ami_id.txt | while read file; do
-            ami_id=$(echo $ami_id | cut -d'=' -f2)
             aws ec2 create-launch-template-version \
               --launch-template-name ${{ secrets.LAUNCH_TEMPLATE_NAME }} \
               --version-description latest \
