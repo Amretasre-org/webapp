@@ -80,7 +80,9 @@ jobs:
 
     - name: Packer Build
       run: |
-        packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl
+        ami_id=$(packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | grep 'ami-' | awk '{print $2}')
+        echo "AMI_ID is: $ami_id"
+        echo "AMI_ID=$ami_id" >> ami_id.txt
       
     - name: Set up AWS CLI for dev
       uses: aws-actions/configure-aws-credentials@v1
@@ -88,23 +90,6 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
         aws-region: ${{ secrets.AMI_AWS_REGION }}
-
-    - name: Get AMI ID
-      id: get_ami_id
-      run: |
-        tag_name="csye6225_$(date -u +\%Y_\%m_\%d_\%H_\%M)"
-
-        echo "The tag name: $tag_name"
-
-        ami_id=$(aws ec2 describe-images --filters "Name=tag:Name,Values=$tag_name" --query 'Images[0].ImageId' --output text)
-    
-        if [ -z "$ami_id" ] || [ "$ami_id" = "None" ]; then
-          echo "Error: No valid AMI ID found for tag '$tag_name'. Exiting."
-          exit 1
-        fi
-
-        echo "Found AMI_ID: $ami_id"
-        echo "AMI_ID=$ami_id" > ami_id.txt
 
     - name: Update Launch Template with new AMI ID
       run: |
