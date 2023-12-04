@@ -82,7 +82,7 @@ jobs:
         id: packer_build
         run: |
           packer build -on-error=cleanup -color=false -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | tee packer_output.log
-          ami_id=$(grep 'AMIs were created' packer_output.log | awk '{sub(/^\*\*\*/, "", $NF); print $NF}')
+          ami_id=$(grep -oE 'ami-[a-f0-9]+' packer_output.log | awk '{sub(/^\*\*\*/, "", $NF); print $NF}')
           echo "AMI_ID is: $ami_id"
           echo "AMI_ID=$ami_id" > ami_id.txt
 
