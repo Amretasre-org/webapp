@@ -82,7 +82,7 @@ jobs:
         id: packer_build
         run: |
           packer build -on-error=cleanup -color=false -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | tee packer_output.log
-          ami_id=$(grep -oE 'ami-[a-f0-9]+' packer_output.log | awk '{sub(/^\*\*\*/, "", $NF); print $NF}')
+          ami_id=$(awk '/--> amazon-ebs.csye6225_ami: AMIs were created:/{getline; print $NF}' packer_output.log)
           echo "AMI_ID is: $ami_id"
           echo "AMI_ID=$ami_id" > ami_id.txt
 
@@ -96,6 +96,7 @@ jobs:
       - name: Update Launch Template with new AMI ID
         run: |
           cat ami_id.txt | while read file; do
+            ami_id=$(echo $ami_id | cut -d'=' -f2)
             aws ec2 create-launch-template-version \
               --launch-template-name ${{ secrets.LAUNCH_TEMPLATE_NAME }} \
               --version-description latest \
@@ -103,41 +104,6 @@ jobs:
               --launch-template-data "ImageId=$file"
           done
 
-      - name: Update Launch Template with new AMI ID
-        run: |
-          launch_template_id=$(aws ec2 describe-launch-templates --launch-template-name csye6225-launch-template --region ${{ secrets.AMI_AWS_REGION }} --query 'LaunchTemplates[0].LaunchTemplateId' --output json)
-
-          if [ -z "$launch_template_id" ]; then
-            echo "Error: Launch template ID not found or empty. Exiting."
-            exit 1
-          fi
-
-          echo "Launch Template ID: $launch_template_id"
-
-          launch_template_id=$(echo "$launch_template_id" | tr -d '"')
-
-          echo "Launch Template ID without quotes: $launch_template_id"
-
-          ami_id="${{ steps.get_ami_id.outputs.ami_id }}"
-
-          echo "AMI ID from step: ${{ steps.get_ami_id.outputs.ami_id }}"
-
-          echo "AMI ID after assigning: $ami_id"
-
-          if [ -z "$ami_id" ]; then
-            echo "Error: AMI ID not found or empty. Exiting."
-            exit 1
-          fi
-
-          echo "AMI ID: $ami_id"
-
-          aws ec2 create-launch-template-version \
-            --launch-template-name "${{ secrets.LAUNCH_TEMPLATE_NAME }}" \
-            --source-version 1 \
-            --launch-template-data "{\"ImageId\":\"$ami_id\"}"
-
       - name: Refresh autoscaling group
         run: |
-          asg_name=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[0].AutoScalingGroupName" --output text)
-          echo "Autoscaling group name: $asg_name"
-          aws autoscaling start-instance-refresh --auto-scaling-group-name $asg_name
+          aws autoscaling start-instance-refresh --auto-scaling-group-name ${{ secrets.AUTO_SCALING_GROUP_NAME }}
