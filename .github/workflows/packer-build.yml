@@ -80,8 +80,15 @@ jobs:
 
     - name: Packer Build
       run: |
-        ami_id=$(packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | \awk '/amazon-ebs.csye6225_ami:/ { print $2 }')
-        echo "AMI_ID is: $ami_id"
+        build_output=$(packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl)
+        ami_id=$(echo "$build_output" | awk -F '[(|)]' '/Adding tags to AMI/ { print $2 }')
+        echo "Tag Name is: $tag_name"
+        ami_id=$(aws ec2 describe-images --filters "Name=tag:Name,Values=$tag_name" --query 'Images[0].ImageId' --output text)
+        if [ -z "$ami_id" ] || [ "$ami_id" = "None" ]; then
+          echo "Error: No valid AMI ID found for tag '$tag_name'. Exiting."
+          exit 1
+        fi
+        echo "Found AMI_ID: $ami_id"
         echo "AMI_ID=$ami_id" >> ami_id.txt
       
     - name: Set up AWS CLI for dev
