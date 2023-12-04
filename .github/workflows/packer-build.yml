@@ -1,6 +1,9 @@
 name: Build AMI and Include Artifact
 
-on:	[push]
+on:	
+  push:
+    branches:
+      - main
 
 env:
   HOST: "localhost"
@@ -12,72 +15,97 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Starting Node JS message
-      run: echo "Setting up Node JS"
+      - name: Starting Node JS message
+        run: echo "Setting up Node JS"
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: 14
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
 
-    - name: Finishing Node JS set up message
-      run: echo "Node JS installation done"
+      - name: Finishing Node JS set up message
+        run: echo "Node JS installation done"
 
-    - name: Starting installation for mysql-server
-      run: echo "mysql-server installation done"
-        
-    - name: configuremysql
-      run: |
-        sudo apt-get update
-        sudo systemctl start mysql
-        sudo systemctl status mysql
-        mysql -u root -p"${PASSWORD}" -e "CREATE DATABASE Assignments_Demo_DB;"
+      - name: Starting installation for mysql-server
+        run: echo "mysql-server installation done"
 
-    - name: Starting dependency installation
-      run: echo "Installing Dependencies"
+      - name: configuremysql
+        run: |
+          sudo apt-get update
+          sudo systemctl start mysql
+          sudo systemctl status mysql
+          mysql -u root -p"${PASSWORD}" -e "CREATE DATABASE Assignments_Demo_DB;"
 
-    - name: Install dependencies
-      run: npm install
+      - name: Starting dependency installation
+        run: echo "Installing Dependencies"
 
-    - name: Dependency installation completed
-      run: echo "Dependencies Installed"
+      - name: Install dependencies
+        run: npm install
 
-    - name: Running test files
-      run: echo "Starting test"
+      - name: Dependency installation completed
+        run: echo "Dependencies Installed"
 
-    - name: run tests
-      run: npm test
+      - name: Running test files
+        run: echo "Starting test"
 
-    - name: Zip the artifact
-      run: |
-        zip -r webapp.zip ./
-        ls -lrth
+      - name: run tests
+        run: npm test
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: app-artifact
-        path: webapp.zip
+      - name: Zip the artifact
+        run: |
+          zip -r webapp.zip ./
+          ls -lrth
 
-    - name: Set up AWS CLI
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AMI_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AMI_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AMI_AWS_REGION }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-artifact
+          path: webapp.zip
 
-    - name: Setup `packer`
-      uses: hashicorp/setup-packer@main
-      id: setup
-      with:
-        version: 'latest'
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AMI_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AMI_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AMI_AWS_REGION }}
 
-    - name: Packer Init
-      run: packer init packer/aws-ami.pkr.hcl
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
+        with:
+          version: "latest"
 
-    - name: Packer Build
-      run: |
-        packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl
+      - name: Packer Init
+        run: packer init packer/aws-ami.pkr.hcl
+
+      - name: Packer Build and create ami_id.txt
+        id: packer_build
+        run: |
+          packer build -on-error=cleanup -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | tee packer_output.log
+          ami_id=$(awk '/--> amazon-ebs.csye6225_ami: AMIs were created:/{getline; print $NF}' packer_output.log)
+          echo "AMI_ID is: $ami_id"
+          echo $ami_id > ami_id.txt
+
+      - name: Set up AWS CLI for dev
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEMO }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEMO }}
+          aws-region: ${{ secrets.AMI_AWS_REGION }}
+
+      - name: Update Launch Template with new AMI ID
+        run: |
+          cat ami_id.txt | while read file; do
+            aws ec2 create-launch-template-version \
+              --launch-template-name ${{ secrets.LAUNCH_TEMPLATE_NAME }} \
+              --version-description latest \
+              --source-version 1 \
+              --launch-template-data "ImageId=$file"
+          done
+
+      - name: Refresh autoscaling group
+        run: |
+          aws autoscaling start-instance-refresh --auto-scaling-group-name ${{ secrets.AUTO_SCALING_GROUP_NAME }}

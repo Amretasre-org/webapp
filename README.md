@@ -33,6 +33,22 @@ unzip csye6225-Netwrk-Strctrs-Cloud-Cmpting.zip
 ls -al
 ```
 
+```
+export AWS_PROFILE=demo
+echo $AWS_PROFILE
+export AWS_REGION=us-east-1
+echo $AWS_REGION
+```
+
+### Command to import
+```
+sudo chown amretasrerengarajan:staff private.key
+
+aws acm import-certificate --certificate fileb:///Users/amretasrerengarajan/AccessKeysAWS/demo/ssl-demo/demo_donquixote_me.crt \
+      --certificate-chain fileb:///Users/amretasrerengarajan/AccessKeysAWS/demo/ssl-demo/demo_donquixote_me.ca-bundle \
+      --private-key fileb:///Users/amretasrerengarajan/AccessKeysAWS/demo/ssl-demo/private.key
+```
+
 
 ## Packer commands
 
