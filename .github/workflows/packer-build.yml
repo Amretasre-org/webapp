@@ -100,7 +100,7 @@ jobs:
       run: |
         asg_name=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[0].AutoScalingGroupName' --output text)
         echo "ASG_NAME=$asg_name" > asg_name.txt
-
+      
     - name: Update Launch Template with new AMI ID
       run: |
         launch_template_id=$(aws ec2 describe-launch-templates --launch-template-name csye6225-dev-launch-template --region ${{ secrets.AMI_AWS_REGION }} --query 'LaunchTemplates[0].LaunchTemplateId' --output json)
@@ -114,7 +114,7 @@ jobs:
 
         echo "Launch Template ID: $launch_template_id"
 
-        launch_template_data=$(aws ec2 describe-launch-templates --launch-template-name $launch_template_id --query 'LaunchTemplates[0].LaunchTemplateData' --output json)
+        launch_template_data=$(aws ec2 describe-launch-templates --launch-template-ids $launch_template_id --query 'LaunchTemplates[0].LaunchTemplateData' --output json)
 
         modified_launch_template_data=$(echo $launch_template_data | jq --arg ami_id $ami_id '.ImageId = $ami_id')
 
