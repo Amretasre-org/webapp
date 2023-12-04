@@ -1,6 +1,9 @@
 name: Build AMI and Include Artifact
 
-on: [push]
+on:	
+  push:
+    branches:
+      - main
 
 env:
   HOST: "localhost"
@@ -81,7 +84,7 @@ jobs:
       - name: Packer Build and create ami_id.txt
         id: packer_build
         run: |
-          packer build -on-error=cleanup -color=false -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | tee packer_output.log
+          packer build -on-error=cleanup -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | tee packer_output.log
           ami_id=$(awk '/--> amazon-ebs.csye6225_ami: AMIs were created:/{getline; print $NF}' packer_output.log)
           echo "AMI_ID is: $ami_id"
           echo $ami_id > ami_id.txt
