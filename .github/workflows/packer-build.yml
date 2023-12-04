@@ -103,7 +103,7 @@ jobs:
 
     - name: Update Launch Template with new AMI ID
       run: |
-        launch_template_id=$(aws ec2 describe-launch-templates --launch-template-name csye6225-dev-launch-template --query 'LaunchTemplates[0].LaunchTemplateId' --output json)
+        launch_template_id=$(aws ec2 describe-launch-templates --launch-template-name csye6225-dev-launch-template --region ${{ secrets.AMI_AWS_REGION }} --query 'LaunchTemplates[0].LaunchTemplateId' --output text | jq -r '.[0].LaunchTemplateId')
 
         if [ -z "$launch_template_id" ]; then
           echo "Error: Launch template ID not found or empty. Exiting."
@@ -112,13 +112,12 @@ jobs:
 
         ami_id=$(cat ami_id.txt)
 
-        # Fetch the launch template data
+        echo "Launch Template ID: $launch_template_id"
+
         launch_template_data=$(aws ec2 describe-launch-templates --launch-template-name $launch_template_id --query 'LaunchTemplates[0].LaunchTemplateData' --output json)
 
-        # Update the AMI ID in the launch template data
         modified_launch_template_data=$(echo $launch_template_data | jq --arg ami_id $ami_id '.ImageId = $ami_id')
 
-        # Create a new version of the launch template
         aws ec2 create-launch-template-version \
           --launch-template-name $launch_template_id \
           --source-version $ami_id \
