@@ -103,7 +103,7 @@ jobs:
 
     - name: Update Launch Template with new AMI ID
       run: |
-        launch_template_id=$(aws ec2 describe-launch-templates --launch-template-name csye6225-dev-launch-template --region ${{ secrets.AMI_AWS_REGION }} --query 'LaunchTemplates[0].LaunchTemplateId' --output text | jq -r '.[0].LaunchTemplateId')
+        launch_template_id=$(aws ec2 describe-launch-templates --launch-template-name csye6225-dev-launch-template --region ${{ secrets.AMI_AWS_REGION }} --query 'LaunchTemplates[0].LaunchTemplateId' --output json | jq -r '.[0].LaunchTemplateId')
 
         if [ -z "$launch_template_id" ]; then
           echo "Error: Launch template ID not found or empty. Exiting."
