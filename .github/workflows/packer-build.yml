@@ -116,14 +116,18 @@ jobs:
 
         launch_template_id=$(echo "$launch_template_id" | tr -d '"')
 
-        echo "Launch Template ID: $launch_template_id"
+        echo "Launch Template ID without quotes: $launch_template_id"
 
         launch_template_data=$(aws ec2 describe-launch-templates --launch-template-ids "$launch_template_id" --query 'LaunchTemplates[0].LaunchTemplateData' --output json )
 
+        echo "Fetched launch template data"
+
         modified_launch_template_data=$(echo $launch_template_data | jq --arg ami_id $ami_id '.ImageId = $ami_id')
 
+        echo "Modified the launch template data and going to update the launch template version"
+
         aws ec2 create-launch-template-version \
-          --launch-template-name $launch_template_id \
+          --launch-template-id $launch_template_id \
           --source-version $ami_id \
           --launch-template-data "$modified_launch_template_data"
 
