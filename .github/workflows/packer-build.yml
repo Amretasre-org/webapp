@@ -79,17 +79,10 @@ jobs:
       run: packer init packer/aws-ami.pkr.hcl
 
     - name: Packer Build
+      id: get_ami_id
       run: |
-        ami_id=$(packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl | awk '/AMIs were created:/ {print $NF}')
+        packer build -var-file=packer/packer-config.hcl packer/aws-ami.pkr.hcl
 
-        if [ -z "$ami_id" ]; then
-          echo "Error: No valid AMI ID found. Exiting."
-          exit 1
-        fi
-
-        echo "Found AMI_ID: $ami_id"
-        echo "AMI_ID=$ami_id" > ami_id.txt
-      
     - name: Set up AWS CLI for dev
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -106,26 +99,16 @@ jobs:
           exit 1
         fi
 
-        ami_id=$(cat ami_id.txt | awk -F= '/AMI_ID/ {print $2}' | tr -d ' ')
-
         echo "Launch Template ID: $launch_template_id"
 
         launch_template_id=$(echo "$launch_template_id" | tr -d '"')
 
         echo "Launch Template ID without quotes: $launch_template_id"
 
-        launch_template_data=$(aws ec2 describe-launch-templates --launch-template-ids "$launch_template_id" --query 'LaunchTemplates[0].LaunchTemplateData' --output json )
-
-        echo "Fetched launch template data"
-
-        modified_launch_template_data=$(echo $launch_template_data | jq --arg ami_id $ami_id '.ImageId = $ami_id')
-
-        echo "Modified the launch template data and going to update the launch template version"
-
         aws ec2 create-launch-template-version \
           --launch-template-id $launch_template_id \
           --source-version 1 \
-          --launch-template-data "$modified_launch_template_data"
+          --launch-template-data '{"ImageId":"'"${{ steps.get_ami_id.outputs.ami_id }}"'"}'
 
 
     - name: Update Auto Scaling Group with new Launch Template
